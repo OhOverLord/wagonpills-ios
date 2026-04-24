@@ -1,0 +1,24 @@
+## Xcode build output
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+
+## Swift Package Manager
+.build/
+.swiftpm/
+# Package.resolved IS committed (lockfile)
+
+## macOS
+.DS_Store
+
+## IDE
+.idea/
+.vscode/
+
+## Local secrets and env overrides
+*.local.xcconfig
