@@ -7,12 +7,29 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		FD9404212F9E0675001CF01D /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		FD9404222F9E0675001CF01D /* Debug.local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Debug.local.xcconfig.example; sourceTree = "<group>"; };
+		FD9404232F9E0675001CF01D /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		FD9404242F9E0675001CF01D /* Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Shared.xcconfig; sourceTree = "<group>"; };
 		FDDE535A2F9BFEA500EF0076 /* Wagonpills.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wagonpills.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		FD9404272F9E0B62001CF01D /* Exceptions for "Wagonpills" folder in "Wagonpills" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = FDDE53592F9BFEA500EF0076 /* Wagonpills */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		FDDE535C2F9BFEA500EF0076 /* Wagonpills */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FD9404272F9E0B62001CF01D /* Exceptions for "Wagonpills" folder in "Wagonpills" target */,
+			);
 			path = Wagonpills;
 			sourceTree = "<group>";
 		};
@@ -29,9 +46,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FD9404252F9E0675001CF01D /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				FD9404212F9E0675001CF01D /* Debug.xcconfig */,
+				FD9404222F9E0675001CF01D /* Debug.local.xcconfig.example */,
+				FD9404232F9E0675001CF01D /* Release.xcconfig */,
+				FD9404242F9E0675001CF01D /* Shared.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
 		FDDE53512F9BFEA500EF0076 = {
 			isa = PBXGroup;
 			children = (
+				FD9404252F9E0675001CF01D /* Config */,
 				FDDE535C2F9BFEA500EF0076 /* Wagonpills */,
 				FDDE535B2F9BFEA500EF0076 /* Products */,
 			);
@@ -127,6 +156,7 @@
 /* Begin XCBuildConfiguration section */
 		FDDE53632F9BFEA600EF0076 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FD9404212F9E0675001CF01D /* Debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -190,6 +220,7 @@
 		};
 		FDDE53642F9BFEA600EF0076 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FD9404232F9E0675001CF01D /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -246,6 +277,7 @@
 		};
 		FDDE53662F9BFEA600EF0076 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FD9404212F9E0675001CF01D /* Debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -253,11 +285,13 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Wagonpills/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WagonPills;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -281,6 +315,7 @@
 		};
 		FDDE53672F9BFEA600EF0076 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FD9404232F9E0675001CF01D /* Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -288,11 +323,13 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Wagonpills/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WagonPills;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

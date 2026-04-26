@@ -1,0 +1,10 @@
+#include "Shared.xcconfig"
+
+// Debug build settings
+
+// API base URL — override locally via Debug.local.xcconfig
+// Note the $() escape: xcconfig treats // as comment, $() breaks that up.
+BASE_URL = http:/$\(\)/localhost:8080
+
+// Include local overrides if present (not committed to git)
+#include? "Debug.local.xcconfig"

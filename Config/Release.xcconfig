@@ -1,0 +1,5 @@
+#include "Shared.xcconfig"
+
+// Release build settings
+
+BASE_URL = https:/$\(\)/api.wagonpills.example.com

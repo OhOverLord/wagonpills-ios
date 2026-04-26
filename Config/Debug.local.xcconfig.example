@@ -1,0 +1,6 @@
+// Copy this file to Debug.local.xcconfig and override values locally.
+// Debug.local.xcconfig is gitignored.
+
+// Example: point the app at your Mac's LAN IP instead of localhost
+// so it works on a real iPhone over Wi-Fi
+// BASE_URL = http:/$()/192.168.1.42:8080
