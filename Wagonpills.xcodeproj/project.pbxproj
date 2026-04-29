@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		FDC570802FA2A9BC008DFDA2 /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = FDC5707F2FA2A9BC008DFDA2 /* OpenAPIRuntime */; };
+		FDC570832FA2A9D2008DFDA2 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = FDC570822FA2A9D2008DFDA2 /* OpenAPIURLSession */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		FD9404212F9E0675001CF01D /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		FD9404222F9E0675001CF01D /* Debug.local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Debug.local.xcconfig.example; sourceTree = "<group>"; };
@@ -40,6 +45,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FDC570832FA2A9D2008DFDA2 /* OpenAPIURLSession in Frameworks */,
+				FDC570802FA2A9BC008DFDA2 /* OpenAPIRuntime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -89,12 +96,15 @@
 			buildRules = (
 			);
 			dependencies = (
+				FDC570852FA2AA29008DFDA2 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				FDDE535C2F9BFEA500EF0076 /* Wagonpills */,
 			);
 			name = Wagonpills;
 			packageProductDependencies = (
+				FDC5707F2FA2A9BC008DFDA2 /* OpenAPIRuntime */,
+				FDC570822FA2A9D2008DFDA2 /* OpenAPIURLSession */,
 			);
 			productName = Wagonpills;
 			productReference = FDDE535A2F9BFEA500EF0076 /* Wagonpills.app */;
@@ -124,6 +134,11 @@
 			);
 			mainGroup = FDDE53512F9BFEA500EF0076;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				FDC5707D2FA2A993008DFDA2 /* XCRemoteSwiftPackageReference "swift-openapi-generator" */,
+				FDC5707E2FA2A9BC008DFDA2 /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */,
+				FDC570812FA2A9D2008DFDA2 /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FDDE535B2F9BFEA500EF0076 /* Products */;
 			projectDirPath = "";
@@ -175,6 +190,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		FDC570852FA2AA29008DFDA2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = FDC570842FA2AA29008DFDA2 /* OpenAPIGenerator */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		FDDE53632F9BFEA600EF0076 /* Debug */ = {
@@ -398,6 +420,51 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		FDC5707D2FA2A993008DFDA2 /* XCRemoteSwiftPackageReference "swift-openapi-generator" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-openapi-generator";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.12.0;
+			};
+		};
+		FDC5707E2FA2A9BC008DFDA2 /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-openapi-runtime";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.11.0;
+			};
+		};
+		FDC570812FA2A9D2008DFDA2 /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-openapi-urlsession";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FDC5707F2FA2A9BC008DFDA2 /* OpenAPIRuntime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FDC5707E2FA2A9BC008DFDA2 /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */;
+			productName = OpenAPIRuntime;
+		};
+		FDC570822FA2A9D2008DFDA2 /* OpenAPIURLSession */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FDC570812FA2A9D2008DFDA2 /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */;
+			productName = OpenAPIURLSession;
+		};
+		FDC570842FA2AA29008DFDA2 /* OpenAPIGenerator */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FDC5707D2FA2A993008DFDA2 /* XCRemoteSwiftPackageReference "swift-openapi-generator" */;
+			productName = "plugin:OpenAPIGenerator";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FDDE53522F9BFEA500EF0076 /* Project object */;
 }
