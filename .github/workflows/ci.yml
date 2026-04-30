@@ -11,9 +11,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  XCODE_VERSION: '16.4'
-  SCHEME: 'Wagonpills'
-  DESTINATION: 'platform=iOS Simulator,name=iPhone 16,OS=18.5'
+  XCODE_VERSION: "16.4"
+  SCHEME: "Wagonpills"
+  DESTINATION: "platform=iOS Simulator,name=iPhone 16,OS=18.5"
 
 jobs:
   lint:
@@ -60,8 +60,9 @@ jobs:
             -configuration Debug \
             -destination "$DESTINATION" \
             -derivedDataPath .derived \
-            CODE_SIGNING_ALLOWED=NO \
-            -quiet
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -98,6 +99,8 @@ jobs:
             -destination "$DESTINATION" \
             -derivedDataPath .derived \
             -resultBundlePath test-results.xcresult \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Upload test results
