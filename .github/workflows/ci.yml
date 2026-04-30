@@ -26,8 +26,8 @@ jobs:
       - name: Run SwiftLint
         run: swiftlint --strict
 
-  build:
-    name: Build for Testing
+  test:
+    name: Build & Test
     runs-on: macos-15
     timeout-minutes: 30
     steps:
@@ -52,65 +52,17 @@ jobs:
           restore-keys: |
             spm-${{ runner.os }}-
 
-      - name: Build for testing
+      - name: Run tests
         run: |
-          xcodebuild build-for-testing \
+          xcodebuild test \
             -project Wagonpills.xcodeproj \
             -scheme "$SCHEME" \
             -configuration Debug \
             -destination "$DESTINATION" \
-            -derivedDataPath "$GITHUB_WORKSPACE/.derived" \
+            -resultBundlePath test-results.xcresult \
             -skipPackagePluginValidation \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO
-
-      - name: Verify build products exist
-        run: |
-          ls -la "$GITHUB_WORKSPACE/.derived/Build/Products/"
-          find "$GITHUB_WORKSPACE/.derived/Build/Products/" -name "*.xctestrun"
-
-      - name: Upload build products
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-products
-          path: .derived/Build/Products
-          retention-days: 1
-          if-no-files-found: error
-
-  test:
-    name: Run Tests
-    needs: [build]
-    runs-on: macos-15
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Select Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: ${{ env.XCODE_VERSION }}
-
-      - name: Download build products
-        uses: actions/download-artifact@v4
-        with:
-          name: build-products
-          path: .derived/Build/Products
-
-      - name: Locate xctestrun
-        id: xctestrun
-        run: |
-          XCTESTRUN=$(find .derived/Build/Products -name "*.xctestrun" | head -n 1)
-          echo "Found: $XCTESTRUN"
-          echo "path=$XCTESTRUN" >> "$GITHUB_OUTPUT"
-
-      - name: Run tests
-        run: |
-          xcodebuild test-without-building \
-            -xctestrun "${{ steps.xctestrun.outputs.path }}" \
-            -destination "$DESTINATION" \
-            -resultBundlePath test-results.xcresult \
-            -skipPackagePluginValidation \
-            -skipMacroValidation
 
       - name: Upload test results
         if: always()
