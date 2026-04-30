@@ -6,10 +6,14 @@ on:
   pull_request:
     branches: [main]
 
-# Cancel in-progress runs when a new commit is pushed to the same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  XCODE_VERSION: '16.3'
+  SCHEME: 'Wagonpills'
+  DESTINATION: 'platform=iOS Simulator,name=iPhone 16,OS=latest'
 
 jobs:
   lint:
@@ -17,22 +21,22 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-
       - name: Install SwiftLint
         run: brew install swiftlint
-
       - name: Run SwiftLint
         run: swiftlint --strict
 
-  build-and-test:
-    name: Build & Test
+  build:
+    name: Build for Testing
     runs-on: macos-15
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.app
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
 
       - name: Show Xcode version
         run: xcodebuild -version
@@ -49,20 +53,46 @@ jobs:
         run: |
           xcodebuild build-for-testing \
             -project Wagonpills.xcodeproj \
-            -scheme Wagonpills \
+            -scheme "$SCHEME" \
             -configuration Debug \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination "$DESTINATION" \
             -derivedDataPath .derived \
             CODE_SIGNING_ALLOWED=NO \
             -quiet
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: derived-data
+          path: .derived
+          retention-days: 1
+
+  test:
+    name: Run Tests
+    needs: [build]
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: derived-data
+          path: .derived
 
       - name: Run tests
         run: |
           xcodebuild test-without-building \
             -project Wagonpills.xcodeproj \
-            -scheme Wagonpills \
+            -scheme "$SCHEME" \
             -configuration Debug \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination "$DESTINATION" \
             -derivedDataPath .derived \
             -resultBundlePath test-results.xcresult \
             CODE_SIGNING_ALLOWED=NO
