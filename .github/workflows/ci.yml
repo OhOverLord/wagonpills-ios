@@ -59,17 +59,23 @@ jobs:
             -scheme "$SCHEME" \
             -configuration Debug \
             -destination "$DESTINATION" \
-            -derivedDataPath .derived \
+            -derivedDataPath "$GITHUB_WORKSPACE/.derived" \
             -skipPackagePluginValidation \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Upload build artifacts
+      - name: Verify build products exist
+        run: |
+          ls -la "$GITHUB_WORKSPACE/.derived/Build/Products/"
+          find "$GITHUB_WORKSPACE/.derived/Build/Products/" -name "*.xctestrun"
+
+      - name: Upload build products
         uses: actions/upload-artifact@v4
         with:
-          name: derived-data
-          path: .derived
+          name: build-products
+          path: .derived/Build/Products
           retention-days: 1
+          if-no-files-found: error
 
   test:
     name: Run Tests
@@ -84,24 +90,27 @@ jobs:
         with:
           xcode-version: ${{ env.XCODE_VERSION }}
 
-      - name: Download build artifacts
+      - name: Download build products
         uses: actions/download-artifact@v4
         with:
-          name: derived-data
-          path: .derived
+          name: build-products
+          path: .derived/Build/Products
+
+      - name: Locate xctestrun
+        id: xctestrun
+        run: |
+          XCTESTRUN=$(find .derived/Build/Products -name "*.xctestrun" | head -n 1)
+          echo "Found: $XCTESTRUN"
+          echo "path=$XCTESTRUN" >> "$GITHUB_OUTPUT"
 
       - name: Run tests
         run: |
           xcodebuild test-without-building \
-            -project Wagonpills.xcodeproj \
-            -scheme "$SCHEME" \
-            -configuration Debug \
+            -xctestrun "${{ steps.xctestrun.outputs.path }}" \
             -destination "$DESTINATION" \
-            -derivedDataPath .derived \
             -resultBundlePath test-results.xcresult \
             -skipPackagePluginValidation \
-            -skipMacroValidation \
-            CODE_SIGNING_ALLOWED=NO
+            -skipMacroValidation
 
       - name: Upload test results
         if: always()
