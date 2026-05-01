@@ -11,7 +11,18 @@
 		FDC570832FA2A9D2008DFDA2 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = FDC570822FA2A9D2008DFDA2 /* OpenAPIURLSession */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		FD1485A22FA4F40600EE493E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FDDE53522F9BFEA500EF0076 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FDDE53592F9BFEA500EF0076;
+			remoteInfo = Wagonpills;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		FD14859E2FA4F40600EE493E /* WagonpillsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WagonpillsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FD9404212F9E0675001CF01D /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		FD9404222F9E0675001CF01D /* Debug.local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Debug.local.xcconfig.example; sourceTree = "<group>"; };
 		FD9404232F9E0675001CF01D /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
@@ -30,6 +41,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		FD14859F2FA4F40600EE493E /* WagonpillsTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = WagonpillsTests;
+			sourceTree = "<group>";
+		};
 		FDDE535C2F9BFEA500EF0076 /* Wagonpills */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -41,6 +57,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		FD14859B2FA4F40600EE493E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FDDE53572F9BFEA500EF0076 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -69,6 +92,7 @@
 			children = (
 				FD9404252F9E0675001CF01D /* Config */,
 				FDDE535C2F9BFEA500EF0076 /* Wagonpills */,
+				FD14859F2FA4F40600EE493E /* WagonpillsTests */,
 				FDDE535B2F9BFEA500EF0076 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -77,6 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				FDDE535A2F9BFEA500EF0076 /* Wagonpills.app */,
+				FD14859E2FA4F40600EE493E /* WagonpillsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -84,6 +109,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		FD14859D2FA4F40600EE493E /* WagonpillsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FD1485A62FA4F40600EE493E /* Build configuration list for PBXNativeTarget "WagonpillsTests" */;
+			buildPhases = (
+				FD14859A2FA4F40600EE493E /* Sources */,
+				FD14859B2FA4F40600EE493E /* Frameworks */,
+				FD14859C2FA4F40600EE493E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FD1485A32FA4F40600EE493E /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				FD14859F2FA4F40600EE493E /* WagonpillsTests */,
+			);
+			name = WagonpillsTests;
+			packageProductDependencies = (
+			);
+			productName = WagonpillsTests;
+			productReference = FD14859E2FA4F40600EE493E /* WagonpillsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		FDDE53592F9BFEA500EF0076 /* Wagonpills */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FDDE53652F9BFEA600EF0076 /* Build configuration list for PBXNativeTarget "Wagonpills" */;
@@ -120,6 +168,10 @@
 				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					FD14859D2FA4F40600EE493E = {
+						CreatedOnToolsVersion = 26.0.1;
+						TestTargetID = FDDE53592F9BFEA500EF0076;
+					};
 					FDDE53592F9BFEA500EF0076 = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
@@ -145,11 +197,19 @@
 			projectRoot = "";
 			targets = (
 				FDDE53592F9BFEA500EF0076 /* Wagonpills */,
+				FD14859D2FA4F40600EE493E /* WagonpillsTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		FD14859C2FA4F40600EE493E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FDDE53582F9BFEA500EF0076 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -182,6 +242,13 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		FD14859A2FA4F40600EE493E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FDDE53562F9BFEA500EF0076 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -192,6 +259,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		FD1485A32FA4F40600EE493E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FDDE53592F9BFEA500EF0076 /* Wagonpills */;
+			targetProxy = FD1485A22FA4F40600EE493E /* PBXContainerItemProxy */;
+		};
 		FDC570852FA2AA29008DFDA2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = FDC570842FA2AA29008DFDA2 /* OpenAPIGenerator */;
@@ -199,6 +271,48 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		FD1485A42FA4F40600EE493E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wagonpills.WagonpillsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Wagonpills.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Wagonpills";
+			};
+			name = Debug;
+		};
+		FD1485A52FA4F40600EE493E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wagonpills.WagonpillsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Wagonpills.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Wagonpills";
+			};
+			name = Release;
+		};
 		FDDE53632F9BFEA600EF0076 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = FD9404212F9E0675001CF01D /* Debug.xcconfig */;
@@ -401,6 +515,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		FD1485A62FA4F40600EE493E /* Build configuration list for PBXNativeTarget "WagonpillsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FD1485A42FA4F40600EE493E /* Debug */,
+				FD1485A52FA4F40600EE493E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		FDDE53552F9BFEA500EF0076 /* Build configuration list for PBXProject "Wagonpills" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
