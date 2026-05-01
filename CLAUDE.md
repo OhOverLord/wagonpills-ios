@@ -230,13 +230,8 @@ claim "done" by hope.
 
 ## Local skills
 
-The `.claude/skills/` directory contains skills that automate repetitive
-work in this repo. Use them when the task matches:
+The `.claude/skills/` directory contains skills for repetitive work:
 
-- **add-feature** — scaffold a new feature folder with View, ViewModel,
-  Repository, Models, and a test file, all wired together with a stub
-  Repository for Previews.
-- **regenerate-openapi** — sync `openapi.yaml` from the backend project
-  and regenerate the API client. Run after backend contract changes.
-
-When invoking a skill, read its `SKILL.md` first.
+- **add-feature** — implement a complete feature end-to-end (models,
+  repository, viewmodels, views, tests). Read its `SKILL.md` before
+  using.
