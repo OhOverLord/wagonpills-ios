@@ -22,3 +22,6 @@ xcuserdata/
 
 ## Local secrets and env overrides
 *.local.xcconfig
+
+design/
+.claude/
