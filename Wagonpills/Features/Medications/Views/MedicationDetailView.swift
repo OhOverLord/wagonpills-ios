@@ -9,6 +9,13 @@ struct MedicationDetailView: View {
         _vm = State(wrappedValue: viewModel)
     }
 
+    private var reminderListViewModel: ReminderListViewModel {
+        ReminderListViewModel(
+            medicationId: vm.medicationId,
+            repository: vm.reminderRepository
+        )
+    }
+
     var body: some View {
         Group {
             switch vm.state {
@@ -58,6 +65,7 @@ struct MedicationDetailView: View {
                 headerSection(med)
                 dosageSection(med)
                 scheduleSection(med)
+                remindersSection(med)
                 stockSection(med)
                 metadataSection(med)
             }
@@ -102,6 +110,14 @@ struct MedicationDetailView: View {
                 "End date",
                 value: med.endDate.map { $0.formatted(date: .abbreviated, time: .omitted) } ?? "Ongoing"
             )
+        }
+    }
+
+    private func remindersSection(_ med: Medication) -> some View {
+        SectionCard(title: "Reminders") {
+            NavigationLink(destination: ReminderListView(viewModel: reminderListViewModel)) {
+                Label("Manage reminder rules", systemImage: "bell")
+            }
         }
     }
 
@@ -187,7 +203,10 @@ private struct SectionCard<Content: View>: View {
                     createdAt: Calendar.current.date(byAdding: .month, value: -3, to: Date()) ?? Date(),
                     updatedAt: Date()
                 )
-            ])
+            ]),
+            reminderRepository: PreviewReminderRepository(
+                rules: PreviewReminderRepository.makePreviewRules()
+            )
         ))
     }
 }
@@ -204,7 +223,8 @@ private struct SectionCard<Content: View>: View {
                     lowStockThreshold: nil, catalogItemId: nil, regionCode: nil,
                     createdAt: Date(), updatedAt: Date()
                 )
-            ])
+            ]),
+            reminderRepository: PreviewReminderRepository()
         ))
     }
 }

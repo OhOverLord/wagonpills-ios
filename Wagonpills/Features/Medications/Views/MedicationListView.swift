@@ -4,8 +4,11 @@ struct MedicationListView: View {
     @State private var vm: MedicationListViewModel
     @State private var showCreateSheet = false
 
-    init(viewModel: MedicationListViewModel) {
+    let reminderRepository: any ReminderRepository
+
+    init(viewModel: MedicationListViewModel, reminderRepository: any ReminderRepository) {
         _vm = State(wrappedValue: viewModel)
+        self.reminderRepository = reminderRepository
     }
 
     var body: some View {
@@ -51,7 +54,8 @@ struct MedicationListView: View {
         .navigationDestination(for: Medication.self) { medication in
             MedicationDetailView(viewModel: MedicationDetailViewModel(
                 medicationId: medication.id,
-                repository: vm.repository
+                repository: vm.repository,
+                reminderRepository: reminderRepository
             ))
         }
     }
@@ -148,38 +152,36 @@ private struct MedicationRow: View {
 // MARK: - Previews
 
 #Preview("Loaded") {
-    MedicationListView(viewModel: MedicationListViewModel(
-        repository: PreviewMedicationRepository(medications: [
-            Medication(
-                id: 1, name: "Metformin", dosageText: "500 mg",
-                instructions: "Take after meals",
-                startDate: Date(), endDate: nil, isActive: true,
-                stockUnit: .tablet, doseQuantity: 2, currentStock: 10,
-                lowStockThreshold: 5, catalogItemId: nil, regionCode: nil,
-                createdAt: Date(), updatedAt: Date()
-            ),
-            Medication(
-                id: 2, name: "Lisinopril", dosageText: "10 mg",
-                instructions: nil,
-                startDate: Date(), endDate: Date(), isActive: false,
-                stockUnit: .tablet, doseQuantity: 1, currentStock: 3,
-                lowStockThreshold: 5, catalogItemId: nil, regionCode: nil,
-                createdAt: Date(), updatedAt: Date()
-            ),
-            Medication(
-                id: 3, name: "Ventolin", dosageText: nil,
-                instructions: "Inhale as needed",
-                startDate: Date(), endDate: nil, isActive: true,
-                stockUnit: .drops, doseQuantity: nil, currentStock: nil,
-                lowStockThreshold: nil, catalogItemId: nil, regionCode: nil,
-                createdAt: Date(), updatedAt: Date()
-            )
-        ])
-    ))
+    MedicationListView(
+        viewModel: MedicationListViewModel(
+            repository: PreviewMedicationRepository(medications: [
+                Medication(
+                    id: 1, name: "Metformin", dosageText: "500 mg",
+                    instructions: "Take after meals",
+                    startDate: Date(), endDate: nil, isActive: true,
+                    stockUnit: .tablet, doseQuantity: 2, currentStock: 10,
+                    lowStockThreshold: 5, catalogItemId: nil, regionCode: nil,
+                    createdAt: Date(), updatedAt: Date()
+                ),
+                Medication(
+                    id: 2, name: "Lisinopril", dosageText: "10 mg",
+                    instructions: nil,
+                    startDate: Date(), endDate: Date(), isActive: false,
+                    stockUnit: .tablet, doseQuantity: 1, currentStock: 3,
+                    lowStockThreshold: 5, catalogItemId: nil, regionCode: nil,
+                    createdAt: Date(), updatedAt: Date()
+                )
+            ])
+        ),
+        reminderRepository: PreviewReminderRepository()
+    )
 }
 
 #Preview("Empty") {
-    MedicationListView(viewModel: MedicationListViewModel(
-        repository: PreviewMedicationRepository(medications: [])
-    ))
+    MedicationListView(
+        viewModel: MedicationListViewModel(
+            repository: PreviewMedicationRepository(medications: [])
+        ),
+        reminderRepository: PreviewReminderRepository()
+    )
 }
