@@ -18,7 +18,7 @@ enum RepeatType: String, CaseIterable, Equatable, Sendable, Codable {
         switch self {
         case .daily:    return String(localized: "Daily")
         case .weekly:   return String(localized: "Weekly")
-        case .interval: return String(localized: "Every N days")
+        case .interval: return String(localized: "Every X Days")
         }
     }
 }
@@ -41,6 +41,18 @@ enum Weekday: String, CaseIterable, Comparable, Equatable, Sendable, Codable {
         case .friday:    return String(localized: "Fri")
         case .saturday:  return String(localized: "Sat")
         case .sunday:    return String(localized: "Sun")
+        }
+    }
+
+    var shortName: String {
+        switch self {
+        case .monday:    return "Mo"
+        case .tuesday:   return "Tu"
+        case .wednesday: return "We"
+        case .thursday:  return "Th"
+        case .friday:    return "Fr"
+        case .saturday:  return "Sa"
+        case .sunday:    return "Su"
         }
     }
 

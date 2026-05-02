@@ -49,6 +49,7 @@ final class ReminderRuleEditViewModel {
         case failed(APIError)
     }
 
+    var active: Bool = true
     var repeatType: RepeatType = .daily
     var intervalDaysText: String = "1"
     var selectedDays: Set<Weekday> = []
@@ -72,6 +73,7 @@ final class ReminderRuleEditViewModel {
         self.repository = repository
 
         if case .edit(let rule) = mode {
+            active = rule.active
             repeatType = rule.repeatType
             intervalDaysText = rule.intervalDays.map(String.init) ?? "1"
             selectedDays = rule.daysOfWeek
@@ -169,7 +171,7 @@ final class ReminderRuleEditViewModel {
             repeatType: repeatType,
             intervalDays: intervalDays,
             daysOfWeek: effectiveDays,
-            active: true
+            active: active
         )
         _ = try await repository.updateRule(medicationId: medicationId, ruleId: ruleId, request)
 
