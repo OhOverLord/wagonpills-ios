@@ -1,13 +1,28 @@
 import SwiftUI
 
 struct RootView: View {
+    @Environment(AuthState.self) private var authState
+    let authRepository: any AuthRepository
+
     var body: some View {
-        // Sprint 1: just main tab view.
-        // Sprint 2: switch between MainTabView and AuthFlow based on AuthService.state.
-        MainTabView()
+        switch authState.status {
+        case .unknown:
+            SplashView()
+                .task { authState.bootstrap() }
+        case .signedOut:
+            AuthFlowView(repository: authRepository, authState: authState)
+        case .signedIn:
+            MainTabView(authRepository: authRepository)
+        }
     }
 }
 
-#Preview {
-    RootView()
+#Preview("Signed out") {
+    RootView(authRepository: PreviewAuthRepository())
+        .environment(AuthState.previewSignedOut())
+}
+
+#Preview("Signed in") {
+    RootView(authRepository: PreviewAuthRepository())
+        .environment(AuthState.preview(signedIn: "user@example.com"))
 }
