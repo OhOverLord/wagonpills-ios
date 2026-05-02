@@ -6,8 +6,11 @@ struct WagonpillsApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(authRepository: deps.authRepository)
-                .environment(deps.authState)
+            RootView(
+                authRepository: deps.authRepository,
+                medicationRepository: deps.medicationRepository
+            )
+            .environment(deps.authState)
         }
     }
 }
