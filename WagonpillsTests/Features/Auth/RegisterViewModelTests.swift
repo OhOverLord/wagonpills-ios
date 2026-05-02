@@ -1,5 +1,5 @@
-import Testing
 import Foundation
+import Testing
 @testable import Wagonpills
 
 @Suite("RegisterViewModel")
@@ -8,16 +8,25 @@ struct RegisterViewModelTests {
     private let validEmail = "new@example.com"
     private let validPassword = "password123"
 
+    private struct Fixture {
+        let vm: RegisterViewModel
+        let repo: MockAuthRepository
+        let store: MockTokenStore
+    }
+
     private func makeVM(
         registerResult: Result<TokenPair, Error> = .success(
             TokenPair(accessToken: "a", refreshToken: "r", email: "new@example.com")
         )
-    ) -> (RegisterViewModel, MockAuthRepository, MockTokenStore) {
+    ) -> Fixture {
         let store = MockTokenStore()
         let repo = MockAuthRepository()
         repo.registerResult = registerResult
+
         let authState = AuthState(tokenStore: store)
-        return (RegisterViewModel(repository: repo, authState: authState), repo, store)
+        let vm = RegisterViewModel(repository: repo, authState: authState)
+
+        return Fixture(vm: vm, repo: repo, store: store)
     }
 
     // MARK: Happy path
@@ -25,32 +34,34 @@ struct RegisterViewModelTests {
     @Test("submit on valid input stores token pair")
     func submitHappyPath() async throws {
         let pair = TokenPair(accessToken: "tok-a", refreshToken: "tok-r", email: validEmail)
-        let (vm, _, store) = makeVM(registerResult: .success(pair))
-        vm.email = validEmail
-        vm.password = validPassword
+        let fixture = makeVM(registerResult: .success(pair))
 
-        await vm.submit()
+        fixture.vm.email = validEmail
+        fixture.vm.password = validPassword
 
-        #expect(vm.state == .idle)
-        #expect(try store.loadTokens() == pair)
+        await fixture.vm.submit()
+
+        #expect(fixture.vm.state == .idle)
+        #expect(try fixture.store.loadTokens() == pair)
     }
 
     // MARK: 409 — email taken
 
     @Test("submit on conflict sets .failed(.conflict)")
     func submitEmailTaken() async {
-        let (vm, _, _) = makeVM(
+        let fixture = makeVM(
             registerResult: .failure(APIError.conflict(message: "Email already registered."))
         )
-        vm.email = validEmail
-        vm.password = validPassword
 
-        await vm.submit()
+        fixture.vm.email = validEmail
+        fixture.vm.password = validPassword
 
-        if case .failed(.conflict) = vm.state {
+        await fixture.vm.submit()
+
+        if case .failed(.conflict) = fixture.vm.state {
             // pass
         } else {
-            Issue.record("Expected .failed(.conflict), got \(vm.state)")
+            Issue.record("Expected .failed(.conflict), got \(fixture.vm.state)")
         }
     }
 
@@ -59,11 +70,16 @@ struct RegisterViewModelTests {
     @Test("region code is forwarded to repository")
     func regionCodeForwarded() async throws {
         var capturedRegion: String?
+
         let store = MockTokenStore()
         let pair = TokenPair(accessToken: "a", refreshToken: "r", email: validEmail)
-        let repo = CapturingAuthRepository(pair: pair) { capturedRegion = $0 }
+        let repo = CapturingAuthRepository(pair: pair) {
+            capturedRegion = $0
+        }
+
         let authState = AuthState(tokenStore: store)
         let vm = RegisterViewModel(repository: repo, authState: authState)
+
         vm.email = validEmail
         vm.password = validPassword
         vm.regionCode = "SK"
@@ -76,11 +92,16 @@ struct RegisterViewModelTests {
     @Test("empty regionCode sends nil to repository")
     func emptyRegionSendsNil() async throws {
         var capturedRegion: String? = "not-nil"
+
         let store = MockTokenStore()
         let pair = TokenPair(accessToken: "a", refreshToken: "r", email: validEmail)
-        let repo = CapturingAuthRepository(pair: pair) { capturedRegion = $0 }
+        let repo = CapturingAuthRepository(pair: pair) {
+            capturedRegion = $0
+        }
+
         let authState = AuthState(tokenStore: store)
         let vm = RegisterViewModel(repository: repo, authState: authState)
+
         vm.email = validEmail
         vm.password = validPassword
         vm.regionCode = "  "
@@ -102,11 +123,22 @@ private final class CapturingAuthRepository: AuthRepository, @unchecked Sendable
         self.onRegion = onRegion
     }
 
-    func login(email: String, password: String) async throws -> TokenPair { pair }
-    func register(email: String, password: String, preferredRegionCode: String?) async throws -> TokenPair {
+    func login(email: String, password: String) async throws -> TokenPair {
+        pair
+    }
+
+    func register(
+        email: String,
+        password: String,
+        preferredRegionCode: String?
+    ) async throws -> TokenPair {
         onRegion(preferredRegionCode)
         return pair
     }
-    func refresh(using refreshToken: String) async throws -> TokenPair { pair }
+
+    func refresh(using refreshToken: String) async throws -> TokenPair {
+        pair
+    }
+
     func logout(refreshToken: String) async throws {}
 }

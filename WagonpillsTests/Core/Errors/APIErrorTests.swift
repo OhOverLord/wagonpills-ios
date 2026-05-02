@@ -1,5 +1,5 @@
-import Testing
 import Foundation
+import Testing
 @testable import Wagonpills
 
 @Suite("APIError.from mapping")
@@ -26,11 +26,15 @@ struct APIErrorTests {
     @Test("DecodingError maps to .decoding")
     func decodingError() throws {
         struct Dummy: Decodable {}
+
         let data = Data("not json".utf8)
-        let error = try #require(
-            Result { try JSONDecoder().decode(Dummy.self, from: data) }.failure
-        )
-        #expect(APIError.from(error) == .decoding)
+
+        do {
+            _ = try JSONDecoder().decode(Dummy.self, from: data)
+            Issue.record("Expected decoding to fail")
+        } catch {
+            #expect(APIError.from(error) == .decoding)
+        }
     }
 
     @Test("APIError passthrough is identity")
