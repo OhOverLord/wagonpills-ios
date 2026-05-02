@@ -2,13 +2,14 @@ import SwiftUI
 
 struct MainTabView: View {
     let authRepository: any AuthRepository
+    let medicationRepository: any MedicationRepository
 
     var body: some View {
         TabView {
             TodayView()
                 .tabItem { Label("Today", systemImage: "checkmark.circle") }
 
-            MedicationListView()
+            MedicationListView(viewModel: MedicationListViewModel(repository: medicationRepository))
                 .tabItem { Label("Medications", systemImage: "pills") }
 
             VisitListView()
@@ -24,6 +25,9 @@ struct MainTabView: View {
 }
 
 #Preview {
-    MainTabView(authRepository: PreviewAuthRepository())
-        .environment(AuthState.preview(signedIn: "user@example.com"))
+    MainTabView(
+        authRepository: PreviewAuthRepository(),
+        medicationRepository: PreviewMedicationRepository()
+    )
+    .environment(AuthState.preview(signedIn: "user@example.com"))
 }

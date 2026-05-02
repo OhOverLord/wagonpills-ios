@@ -11,6 +11,7 @@ import Observation
 final class AppDependencies {
     let authState: AuthState
     let authRepository: any AuthRepository
+    let medicationRepository: any MedicationRepository
 
     init() {
         let tokenStore = KeychainStore()
@@ -18,5 +19,9 @@ final class AppDependencies {
         let apiClient = APIClient(tokenStore: tokenStore, authState: state)
         self.authState = state
         self.authRepository = LiveAuthRepository(apiClient: apiClient)
+        self.medicationRepository = LiveMedicationRepository(
+            apiClient: apiClient,
+            cache: URLCacheStore()
+        )
     }
 }
