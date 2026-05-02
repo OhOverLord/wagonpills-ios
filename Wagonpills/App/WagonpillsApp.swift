@@ -2,9 +2,12 @@ import SwiftUI
 
 @main
 struct WagonpillsApp: App {
+    @State private var deps = AppDependencies()
+
     var body: some Scene {
         WindowGroup {
-            RootView()
+            RootView(authRepository: deps.authRepository)
+                .environment(deps.authState)
         }
     }
 }

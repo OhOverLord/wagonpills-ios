@@ -4,5 +4,21 @@
 <dict>
 	<key>BASE_URL</key>
 	<string>$(BASE_URL)</string>
+	<!-- localhost ATS exception: allows plain HTTP to the local dev server (localhost:8080).
+	     This is domain-scoped to localhost only and has no effect in Release builds
+	     because the production BASE_URL is HTTPS and never points to localhost. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<false/>
+			</dict>
+		</dict>
+	</dict>
 </dict>
 </plist>
