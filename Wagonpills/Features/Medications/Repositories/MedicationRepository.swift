@@ -6,15 +6,25 @@ import OpenAPIRuntime
 protocol MedicationRepository: Sendable {
     func fetchAll(activeOnly: Bool?) async throws -> [Medication]
     func fetchById(_ id: Int64) async throws -> Medication
+    func create(_ request: MedicationCreateRequest) async throws -> Medication
+    func update(id: Int64, _ request: MedicationUpdateRequest) async throws -> Medication
+    func delete(id: Int64) async throws
+    func addStock(medicationId: Int64, quantity: Double, note: String?) async throws
+    func adjustStock(medicationId: Int64, quantity: Double, note: String?) async throws
 }
 
 // MARK: - Narrow client protocol
 
-// Wraps only the two generated operations the repository needs.
+// Wraps only the generated operations the repository needs.
 // APIClient conforms via extension below; tests supply MockMedicationClient.
 protocol MedicationClient: Sendable {
     func getMedications(activeOnly: Bool?) async throws -> Operations.GetAll3.Output
     func getMedication(id: Int64) async throws -> Operations.GetById5.Output
+    func createMedication(_ body: Components.Schemas.CreateMedicationRequest) async throws -> Operations.Create4.Output
+    func updateMedication(id: Int64, _ body: Components.Schemas.UpdateMedicationRequest) async throws -> Operations.Update6.Output
+    func deleteMedication(id: Int64) async throws -> Operations.Delete6.Output
+    func addStock(medicationId: Int64, _ body: Components.Schemas.AddStockRequest) async throws -> Operations.AddStock.Output
+    func adjustStock(medicationId: Int64, _ body: Components.Schemas.AdjustStockRequest) async throws -> Operations.AdjustStock.Output
 }
 
 extension APIClient: MedicationClient {
@@ -23,6 +33,21 @@ extension APIClient: MedicationClient {
     }
     func getMedication(id: Int64) async throws -> Operations.GetById5.Output {
         try await client.getById5(path: .init(id: id))
+    }
+    func createMedication(_ body: Components.Schemas.CreateMedicationRequest) async throws -> Operations.Create4.Output {
+        try await client.create4(body: .json(body))
+    }
+    func updateMedication(id: Int64, _ body: Components.Schemas.UpdateMedicationRequest) async throws -> Operations.Update6.Output {
+        try await client.update6(path: .init(id: id), body: .json(body))
+    }
+    func deleteMedication(id: Int64) async throws -> Operations.Delete6.Output {
+        try await client.delete6(path: .init(id: id))
+    }
+    func addStock(medicationId: Int64, _ body: Components.Schemas.AddStockRequest) async throws -> Operations.AddStock.Output {
+        try await client.addStock(path: .init(medicationId: medicationId), body: .json(body))
+    }
+    func adjustStock(medicationId: Int64, _ body: Components.Schemas.AdjustStockRequest) async throws -> Operations.AdjustStock.Output {
+        try await client.adjustStock(path: .init(medicationId: medicationId), body: .json(body))
     }
 }
 
@@ -81,6 +106,76 @@ final class LiveMedicationRepository: MedicationRepository {
         case .ok(let response):
             let data = try await Data(collecting: try response.body.any, upTo: 1_024_000)
             return try decodeSingle(from: data)
+        case .notFound:
+            throw APIError.notFound
+        case .undocumented(let status, _):
+            throw APIError.server(status: status)
+        }
+    }
+
+    func create(_ request: MedicationCreateRequest) async throws -> Medication {
+        let output = try await apiClient.createMedication(request.toDTO())
+        switch output {
+        case .created(let response):
+            let data = try await Data(collecting: try response.body.any, upTo: 1_024_000)
+            let medication = try decodeSingle(from: data)
+            cache.remove(forKey: Self.listCacheKey)
+            return medication
+        case .badRequest:
+            throw APIError.validation(message: nil)
+        case .unauthorized:
+            throw APIError.unauthorized
+        case .undocumented(let status, _):
+            throw APIError.server(status: status)
+        }
+    }
+
+    func update(id: Int64, _ request: MedicationUpdateRequest) async throws -> Medication {
+        let output = try await apiClient.updateMedication(id: id, request.toDTO())
+        switch output {
+        case .ok(let response):
+            let data = try await Data(collecting: try response.body.any, upTo: 1_024_000)
+            let medication = try decodeSingle(from: data)
+            cache.remove(forKey: Self.listCacheKey)
+            return medication
+        case .notFound:
+            throw APIError.notFound
+        case .undocumented(let status, _):
+            throw APIError.server(status: status)
+        }
+    }
+
+    func delete(id: Int64) async throws {
+        let output = try await apiClient.deleteMedication(id: id)
+        switch output {
+        case .noContent:
+            cache.remove(forKey: Self.listCacheKey)
+        case .notFound:
+            throw APIError.notFound
+        case .undocumented(let status, _):
+            throw APIError.server(status: status)
+        }
+    }
+
+    func addStock(medicationId: Int64, quantity: Double, note: String?) async throws {
+        let body = Components.Schemas.AddStockRequest(quantity: quantity, note: note)
+        let output = try await apiClient.addStock(medicationId: medicationId, body)
+        switch output {
+        case .created:
+            cache.remove(forKey: Self.listCacheKey)
+        case .notFound:
+            throw APIError.notFound
+        case .undocumented(let status, _):
+            throw APIError.server(status: status)
+        }
+    }
+
+    func adjustStock(medicationId: Int64, quantity: Double, note: String?) async throws {
+        let body = Components.Schemas.AdjustStockRequest(quantity: quantity, note: note)
+        let output = try await apiClient.adjustStock(medicationId: medicationId, body)
+        switch output {
+        case .created:
+            cache.remove(forKey: Self.listCacheKey)
         case .notFound:
             throw APIError.notFound
         case .undocumented(let status, _):
