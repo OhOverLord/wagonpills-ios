@@ -27,11 +27,11 @@ actor AuthInterceptor: ClientMiddleware {
     }
 
     func intercept(
-        _ request: consuming HTTPRequest,
-        body: consuming HTTPBody?,
+        _ request: HTTPRequest,
+        body: HTTPBody?,
         baseURL: URL,
         operationID: String,
-        next: @concurrent @Sendable (HTTPRequest, HTTPBody?, URL) async throws -> (HTTPResponse, HTTPBody?)
+        next: @Sendable (HTTPRequest, HTTPBody?, URL) async throws -> (HTTPResponse, HTTPBody?)
     ) async throws -> (HTTPResponse, HTTPBody?) {
         let originalRequest = request
         let isAuthPath = originalRequest.path?.hasPrefix("/api/v1/auth/") ?? false
