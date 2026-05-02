@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MedicationListView: View {
     @State private var vm: MedicationListViewModel
+    @State private var showCreateSheet = false
 
     init(viewModel: MedicationListViewModel) {
         _vm = State(wrappedValue: viewModel)
@@ -11,10 +12,18 @@ struct MedicationListView: View {
         NavigationStack {
             content
                 .navigationTitle("Medications")
-                .toolbar { filterButton }
+                .toolbar {
+                    filterButton
+                    addButton
+                }
                 .task { await vm.load() }
                 .onChange(of: vm.showActiveOnly) { Task { await vm.load() } }
                 .refreshable { await vm.refresh() }
+                .sheet(
+                    isPresented: $showCreateSheet,
+                    onDismiss: { Task { await vm.load() } },
+                    content: { MedicationEditView(mode: .create, repository: vm.repository) }
+                )
         }
     }
 
@@ -91,6 +100,17 @@ struct MedicationListView: View {
                         ? "line.3.horizontal.decrease.circle.fill"
                         : "line.3.horizontal.decrease.circle"
                 )
+            }
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var addButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                showCreateSheet = true
+            } label: {
+                Image(systemName: "plus")
             }
         }
     }

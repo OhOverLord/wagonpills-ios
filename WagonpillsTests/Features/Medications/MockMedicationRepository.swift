@@ -4,6 +4,14 @@ import Foundation
 final class MockMedicationRepository: MedicationRepository, @unchecked Sendable {
     var fetchAllResult: Result<[Medication], Error> = .success([])
     var fetchByIdResult: Result<Medication, Error> = .failure(APIError.notFound)
+    var createResult: Result<Medication, Error> = .failure(APIError.unexpected("not configured"))
+    var updateResult: Result<Medication, Error> = .failure(APIError.unexpected("not configured"))
+    var deleteResult: Result<Void, Error> = .success(())
+
+    private(set) var createCallCount = 0
+    private(set) var updateCallCount = 0
+    private(set) var deleteCallCount = 0
+    private(set) var lastDeletedId: Int64?
 
     func fetchAll(activeOnly: Bool?) async throws -> [Medication] {
         try fetchAllResult.get()
@@ -12,6 +20,26 @@ final class MockMedicationRepository: MedicationRepository, @unchecked Sendable 
     func fetchById(_ id: Int64) async throws -> Medication {
         try fetchByIdResult.get()
     }
+
+    func create(_ request: MedicationCreateRequest) async throws -> Medication {
+        createCallCount += 1
+        return try createResult.get()
+    }
+
+    func update(id: Int64, _ request: MedicationUpdateRequest) async throws -> Medication {
+        updateCallCount += 1
+        return try updateResult.get()
+    }
+
+    func delete(id: Int64) async throws {
+        deleteCallCount += 1
+        lastDeletedId = id
+        try deleteResult.get()
+    }
+
+    func addStock(medicationId: Int64, quantity: Double, note: String?) async throws {}
+
+    func adjustStock(medicationId: Int64, quantity: Double, note: String?) async throws {}
 
     static func makeTestMedication(id: Int64 = 1, name: String = "Aspirin") -> Medication {
         Medication(

@@ -13,7 +13,7 @@ final class MedicationDetailViewModel {
     private(set) var state: State = .loading
     let medicationId: Int64
 
-    private let repository: any MedicationRepository
+    let repository: any MedicationRepository
 
     init(medicationId: Int64, repository: any MedicationRepository) {
         self.medicationId = medicationId

@@ -12,8 +12,20 @@ final class MockMedicationClient: MedicationClient, @unchecked Sendable {
     var getByIdResult: Result<Operations.GetById5.Output, Error> = .success(
         .notFound(.init(body: .any(HTTPBody(Data("{}".utf8)))))
     )
+    var createResult: Result<Operations.Create4.Output, Error> = .failure(
+        APIError.unexpected("not configured")
+    )
+    var updateResult: Result<Operations.Update6.Output, Error> = .failure(
+        APIError.unexpected("not configured")
+    )
+    var deleteResult: Result<Operations.Delete6.Output, Error> = .success(
+        .noContent(.init())
+    )
+
     private(set) var getAllCallCount = 0
     private(set) var getByIdCallCount = 0
+    private(set) var createCallCount = 0
+    private(set) var deleteCallCount = 0
 
     func getMedications(activeOnly: Bool?) async throws -> Operations.GetAll3.Output {
         getAllCallCount += 1
@@ -23,6 +35,28 @@ final class MockMedicationClient: MedicationClient, @unchecked Sendable {
     func getMedication(id: Int64) async throws -> Operations.GetById5.Output {
         getByIdCallCount += 1
         return try getByIdResult.get()
+    }
+
+    func createMedication(_ body: Components.Schemas.CreateMedicationRequest) async throws -> Operations.Create4.Output {
+        createCallCount += 1
+        return try createResult.get()
+    }
+
+    func updateMedication(id: Int64, _ body: Components.Schemas.UpdateMedicationRequest) async throws -> Operations.Update6.Output {
+        return try updateResult.get()
+    }
+
+    func deleteMedication(id: Int64) async throws -> Operations.Delete6.Output {
+        deleteCallCount += 1
+        return try deleteResult.get()
+    }
+
+    func addStock(medicationId: Int64, _ body: Components.Schemas.AddStockRequest) async throws -> Operations.AddStock.Output {
+        .created(.init(body: .any(HTTPBody(Data("{}".utf8)))))
+    }
+
+    func adjustStock(medicationId: Int64, _ body: Components.Schemas.AdjustStockRequest) async throws -> Operations.AdjustStock.Output {
+        .created(.init(body: .any(HTTPBody(Data("{}".utf8)))))
     }
 }
 
@@ -59,6 +93,13 @@ private extension MedicationRepositoryTests {
         encoder.dateEncodingStrategy = .iso8601
         let data = try encoder.encode(dto)
         return .ok(.init(body: .any(HTTPBody(data, length: .known(Int64(data.count)), iterationBehavior: .multiple))))
+    }
+
+    static func makeCreatedOutput(dto: Components.Schemas.MedicationResponse) throws -> Operations.Create4.Output {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let data = try encoder.encode(dto)
+        return .created(.init(body: .any(HTTPBody(data, length: .known(Int64(data.count)), iterationBehavior: .multiple))))
     }
 }
 
@@ -153,5 +194,70 @@ struct MedicationRepositoryTests {
 
         #expect(med.id == 5)
         #expect(med.name == "Metformin")
+    }
+
+    @Test("create returns mapped domain model and invalidates cache")
+    func createSuccess() async throws {
+        let client = MockMedicationClient()
+        let cache = MockCacheStore()
+        cache.save([Medication](), forKey: "medications.list")
+        let dto = Self.makeDTO(id: 10, name: "Ibuprofen")
+        client.createResult = .success(try Self.makeCreatedOutput(dto: dto))
+
+        let repo = LiveMedicationRepository(apiClient: client, cache: cache)
+        let request = MedicationCreateRequest(
+            name: "Ibuprofen", dosageText: nil, instructions: nil,
+            startDate: Date(), endDate: nil, stockUnit: .tablet,
+            doseQuantity: nil, lowStockThreshold: nil, currentStock: nil
+        )
+        let med = try await repo.create(request)
+
+        #expect(client.createCallCount == 1)
+        #expect(med.id == 10)
+        #expect(med.name == "Ibuprofen")
+        #expect(!cache.hasValue(forKey: "medications.list"))
+    }
+
+    @Test("create 400 throws APIError.validation")
+    func createBadRequest() async {
+        let client = MockMedicationClient()
+        let cache = MockCacheStore()
+        client.createResult = .success(.badRequest(.init(body: .any(HTTPBody(Data("{}".utf8))))))
+
+        let repo = LiveMedicationRepository(apiClient: client, cache: cache)
+        let request = MedicationCreateRequest(
+            name: "", dosageText: nil, instructions: nil,
+            startDate: Date(), endDate: nil, stockUnit: .tablet,
+            doseQuantity: nil, lowStockThreshold: nil, currentStock: nil
+        )
+        await #expect(throws: APIError.validation(message: nil)) {
+            try await repo.create(request)
+        }
+    }
+
+    @Test("delete 204 succeeds and invalidates cache")
+    func deleteSuccess() async throws {
+        let client = MockMedicationClient()
+        let cache = MockCacheStore()
+        cache.save([Medication](), forKey: "medications.list")
+        client.deleteResult = .success(.noContent(.init()))
+
+        let repo = LiveMedicationRepository(apiClient: client, cache: cache)
+        try await repo.delete(id: 1)
+
+        #expect(client.deleteCallCount == 1)
+        #expect(!cache.hasValue(forKey: "medications.list"))
+    }
+
+    @Test("delete 404 throws APIError.notFound")
+    func deleteNotFound() async {
+        let client = MockMedicationClient()
+        let cache = MockCacheStore()
+        client.deleteResult = .success(.notFound(.init()))
+
+        let repo = LiveMedicationRepository(apiClient: client, cache: cache)
+        await #expect(throws: APIError.notFound) {
+            try await repo.delete(id: 99)
+        }
     }
 }
