@@ -3,10 +3,18 @@ import SwiftUI
 struct MedicationEditView: View {
     @State private var vm: MedicationEditViewModel
     @State private var showDeleteConfirmation = false
+    @State private var showCatalogPicker = false
     @Environment(\.dismiss) private var dismiss
 
-    init(mode: MedicationEditViewModel.Mode, repository: any MedicationRepository) {
+    let catalogRepository: any CatalogRepository
+
+    init(
+        mode: MedicationEditViewModel.Mode,
+        repository: any MedicationRepository,
+        catalogRepository: any CatalogRepository
+    ) {
         _vm = State(wrappedValue: MedicationEditViewModel(mode: mode, repository: repository))
+        self.catalogRepository = catalogRepository
     }
 
     var body: some View {
@@ -33,6 +41,11 @@ struct MedicationEditView: View {
             .onChange(of: vm.saveState) { _, new in
                 if new == .saved { dismiss() }
             }
+            .sheet(isPresented: $showCatalogPicker) {
+                CatalogPickerView(repository: catalogRepository) { item in
+                    vm.prefillFromCatalog(item)
+                }
+            }
             .alert(
                 "Delete Failed",
                 isPresented: Binding(
@@ -54,6 +67,14 @@ struct MedicationEditView: View {
             TextField("Medication name", text: $vm.name)
             TextField("e.g. 500 mg", text: $vm.dosageText)
                 .autocorrectionDisabled()
+            if case .create = vm.mode {
+                Button {
+                    showCatalogPicker = true
+                } label: {
+                    Label("Search Catalogue", systemImage: "magnifyingglass")
+                        .font(.subheadline)
+                }
+            }
             if case .edit = vm.mode {
                 Toggle("Active", isOn: $vm.isActive)
             }
@@ -164,7 +185,8 @@ struct MedicationEditView: View {
 #Preview("Create") {
     MedicationEditView(
         mode: .create,
-        repository: PreviewMedicationRepository()
+        repository: PreviewMedicationRepository(),
+        catalogRepository: PreviewCatalogRepository()
     )
 }
 
@@ -179,6 +201,7 @@ struct MedicationEditView: View {
             lowStockThreshold: 5, catalogItemId: nil, regionCode: nil,
             createdAt: Date(), updatedAt: Date()
         )),
-        repository: PreviewMedicationRepository()
+        repository: PreviewMedicationRepository(),
+        catalogRepository: PreviewCatalogRepository()
     )
 }

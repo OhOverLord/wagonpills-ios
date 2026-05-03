@@ -85,7 +85,7 @@ struct ReminderRuleEditViewModelTests {
         #expect(repo.createRuleCallCount == 0)
     }
 
-    @Test("Network error on createRule sets saveState to .failed")
+    @Test("Network error on createRule sets saveError and resets saveState")
     func saveCreateNetworkError() async {
         let repo = MockReminderRepository()
         repo.createRuleResult = .failure(APIError.network)
@@ -96,7 +96,8 @@ struct ReminderRuleEditViewModelTests {
 
         await vm.save()
 
-        #expect(vm.saveState == .failed(.network))
+        #expect(vm.saveState == .idle)
+        #expect(vm.saveError == .network)
     }
 
     // MARK: - addTime / removeTime

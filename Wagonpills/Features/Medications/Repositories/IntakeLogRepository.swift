@@ -115,8 +115,13 @@ final class LiveIntakeLogRepository: IntakeLogRepository {
         to: Date?,
         status: IntakeStatus?
     ) async throws -> [IntakeLog] {
+        // Only cache the unfiltered today-view query (used by TodayViewModel).
+        // History queries vary by date range and status — caching them risks
+        // serving stale results after a new intake is logged.
+        let isTodayQuery = medicationId == nil && status == nil && isTodayStart(from)
         let key = cacheKey(medicationId: medicationId, from: from)
-        if let cached = cache.load([IntakeLog].self, forKey: key) {
+
+        if isTodayQuery, let cached = cache.load([IntakeLog].self, forKey: key) {
             return cached
         }
 
@@ -131,7 +136,7 @@ final class LiveIntakeLogRepository: IntakeLogRepository {
         case .ok(let response):
             let data = try await Data(collecting: try response.body.any, upTo: 10_485_760)
             let logs = try decodeLogList(from: data)
-            cache.save(logs, forKey: key)
+            if isTodayQuery { cache.save(logs, forKey: key) }
             return logs
         case .undocumented(let statusCode, _):
             if statusCode == 401 { throw APIError.unauthorized }
@@ -143,6 +148,12 @@ final class LiveIntakeLogRepository: IntakeLogRepository {
 // MARK: - Private helpers
 
 private extension LiveIntakeLogRepository {
+    func isTodayStart(_ date: Date?) -> Bool {
+        guard let date else { return false }
+        return Calendar.current.isDateInToday(date) &&
+               Calendar.current.startOfDay(for: date) == date
+    }
+
     func cacheKey(medicationId: Int64?, from: Date?) -> String {
         let medPart = medicationId.map { String($0) } ?? "all"
         let dayPart = from.map { Self.dayFormatter.string(from: $0) } ?? "any"

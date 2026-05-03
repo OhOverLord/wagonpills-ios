@@ -157,6 +157,9 @@ final class LiveReminderRepository: ReminderRepository {
         switch output {
         case .ok:
             cache.remove(forKey: cacheKey(for: medicationId))
+        case .undocumented(200, _), .undocumented(204, _):
+            // Backend may return 200 or 204 depending on version; both mean success.
+            cache.remove(forKey: cacheKey(for: medicationId))
         case .undocumented(let status, _):
             throw status == 404 ? APIError.notFound : APIError.server(status: status)
         }
@@ -183,6 +186,9 @@ final class LiveReminderRepository: ReminderRepository {
         let output = try await apiClient.deleteTime(medicationId: medicationId, ruleId: ruleId, timeId: timeId)
         switch output {
         case .ok:
+            cache.remove(forKey: cacheKey(for: medicationId))
+        case .undocumented(200, _), .undocumented(204, _):
+            // Backend may return 200 or 204 depending on version; both mean success.
             cache.remove(forKey: cacheKey(for: medicationId))
         case .undocumented(let status, _):
             throw status == 404 ? APIError.notFound : APIError.server(status: status)

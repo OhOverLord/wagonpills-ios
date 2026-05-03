@@ -27,6 +27,7 @@ final class MedicationEditViewModel {
     var doseQuantity: String = ""
     var currentStock: String = ""
     var lowStockThreshold: String = ""
+    private(set) var catalogItemId: Int64?
 
     private(set) var saveState: SaveState = .idle
     private(set) var isDeleting: Bool = false
@@ -78,7 +79,8 @@ final class MedicationEditViewModel {
                     stockUnit: stockUnit,
                     doseQuantity: Double(doseQuantity),
                     lowStockThreshold: Double(lowStockThreshold),
-                    currentStock: Double(currentStock)
+                    currentStock: Double(currentStock),
+                    catalogItemId: catalogItemId
                 )
                 _ = try await repository.create(request)
             case .edit(let med):
@@ -118,6 +120,18 @@ final class MedicationEditViewModel {
             isDeleting = false
         }
         isDeleting = false
+    }
+}
+
+// MARK: - Catalog prefill
+
+extension MedicationEditViewModel {
+    func prefillFromCatalog(_ item: CatalogItem) {
+        name = item.name
+        if let strength = item.strength, dosageText.isEmpty {
+            dosageText = strength
+        }
+        catalogItemId = item.id
     }
 }
 

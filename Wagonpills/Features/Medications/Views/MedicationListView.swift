@@ -5,10 +5,19 @@ struct MedicationListView: View {
     @State private var showCreateSheet = false
 
     let reminderRepository: any ReminderRepository
+    let intakeLogRepository: any IntakeLogRepository
+    let catalogRepository: any CatalogRepository
 
-    init(viewModel: MedicationListViewModel, reminderRepository: any ReminderRepository) {
+    init(
+        viewModel: MedicationListViewModel,
+        reminderRepository: any ReminderRepository,
+        intakeLogRepository: any IntakeLogRepository,
+        catalogRepository: any CatalogRepository
+    ) {
         _vm = State(wrappedValue: viewModel)
         self.reminderRepository = reminderRepository
+        self.intakeLogRepository = intakeLogRepository
+        self.catalogRepository = catalogRepository
     }
 
     var body: some View {
@@ -25,7 +34,7 @@ struct MedicationListView: View {
                 .sheet(
                     isPresented: $showCreateSheet,
                     onDismiss: { Task { await vm.load() } },
-                    content: { MedicationEditView(mode: .create, repository: vm.repository) }
+                    content: { MedicationEditView(mode: .create, repository: vm.repository, catalogRepository: catalogRepository) }
                 )
         }
     }
@@ -55,7 +64,9 @@ struct MedicationListView: View {
             MedicationDetailView(viewModel: MedicationDetailViewModel(
                 medicationId: medication.id,
                 repository: vm.repository,
-                reminderRepository: reminderRepository
+                reminderRepository: reminderRepository,
+                intakeLogRepository: intakeLogRepository,
+                catalogRepository: catalogRepository
             ))
         }
     }
@@ -173,7 +184,9 @@ private struct MedicationRow: View {
                 )
             ])
         ),
-        reminderRepository: PreviewReminderRepository()
+        reminderRepository: PreviewReminderRepository(),
+        intakeLogRepository: PreviewIntakeLogRepository(),
+        catalogRepository: PreviewCatalogRepository()
     )
 }
 
@@ -182,6 +195,8 @@ private struct MedicationRow: View {
         viewModel: MedicationListViewModel(
             repository: PreviewMedicationRepository(medications: [])
         ),
-        reminderRepository: PreviewReminderRepository()
+        reminderRepository: PreviewReminderRepository(),
+        intakeLogRepository: PreviewIntakeLogRepository(),
+        catalogRepository: PreviewCatalogRepository()
     )
 }

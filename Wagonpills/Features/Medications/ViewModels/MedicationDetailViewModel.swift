@@ -15,15 +15,21 @@ final class MedicationDetailViewModel {
 
     let repository: any MedicationRepository
     let reminderRepository: any ReminderRepository
+    let intakeLogRepository: any IntakeLogRepository
+    let catalogRepository: any CatalogRepository
 
     init(
         medicationId: Int64,
         repository: any MedicationRepository,
-        reminderRepository: any ReminderRepository
+        reminderRepository: any ReminderRepository,
+        intakeLogRepository: any IntakeLogRepository,
+        catalogRepository: any CatalogRepository
     ) {
         self.medicationId = medicationId
         self.repository = repository
         self.reminderRepository = reminderRepository
+        self.intakeLogRepository = intakeLogRepository
+        self.catalogRepository = catalogRepository
     }
 
     func load() async {
