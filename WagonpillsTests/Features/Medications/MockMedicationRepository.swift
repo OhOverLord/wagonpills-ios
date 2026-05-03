@@ -41,6 +41,26 @@ final class MockMedicationRepository: MedicationRepository, @unchecked Sendable 
 
     func adjustStock(medicationId: Int64, quantity: Double, note: String?) async throws {}
 
+    var fetchStockSummaryResult: Result<StockSummary, Error> = .success(
+        StockSummary(
+            medicationId: 1, medicationName: "Aspirin", currentStock: 10,
+            unit: .tablet, lowStockThreshold: 5, isLowStock: false
+        )
+    )
+    var fetchStockHistoryResult: Result<[StockMovement], Error> = .success([])
+    private(set) var fetchStockSummaryCallCount = 0
+    private(set) var fetchStockHistoryCallCount = 0
+
+    func fetchStockSummary(medicationId: Int64) async throws -> StockSummary {
+        fetchStockSummaryCallCount += 1
+        return try fetchStockSummaryResult.get()
+    }
+
+    func fetchStockHistory(medicationId: Int64) async throws -> [StockMovement] {
+        fetchStockHistoryCallCount += 1
+        return try fetchStockHistoryResult.get()
+    }
+
     static func makeTestMedication(id: Int64 = 1, name: String = "Aspirin") -> Medication {
         Medication(
             id: id,

@@ -11,6 +11,8 @@ protocol MedicationRepository: Sendable {
     func delete(id: Int64) async throws
     func addStock(medicationId: Int64, quantity: Double, note: String?) async throws
     func adjustStock(medicationId: Int64, quantity: Double, note: String?) async throws
+    func fetchStockSummary(medicationId: Int64) async throws -> StockSummary
+    func fetchStockHistory(medicationId: Int64) async throws -> [StockMovement]
 }
 
 // MARK: - Narrow client protocol
@@ -25,6 +27,8 @@ protocol MedicationClient: Sendable {
     func deleteMedication(id: Int64) async throws -> Operations.Delete6.Output
     func addStock(medicationId: Int64, _ body: Components.Schemas.AddStockRequest) async throws -> Operations.AddStock.Output
     func adjustStock(medicationId: Int64, _ body: Components.Schemas.AdjustStockRequest) async throws -> Operations.AdjustStock.Output
+    func getStockSummary(medicationId: Int64) async throws -> Operations.GetSummary.Output
+    func getStockHistory(medicationId: Int64) async throws -> Operations.GetHistory.Output
 }
 
 extension APIClient: MedicationClient {
@@ -48,6 +52,12 @@ extension APIClient: MedicationClient {
     }
     func adjustStock(medicationId: Int64, _ body: Components.Schemas.AdjustStockRequest) async throws -> Operations.AdjustStock.Output {
         try await client.adjustStock(path: .init(medicationId: medicationId), body: .json(body))
+    }
+    func getStockSummary(medicationId: Int64) async throws -> Operations.GetSummary.Output {
+        try await client.getSummary(path: .init(medicationId: medicationId))
+    }
+    func getStockHistory(medicationId: Int64) async throws -> Operations.GetHistory.Output {
+        try await client.getHistory(path: .init(medicationId: medicationId))
     }
 }
 
@@ -182,6 +192,28 @@ final class LiveMedicationRepository: MedicationRepository {
             throw APIError.server(status: status)
         }
     }
+
+    func fetchStockSummary(medicationId: Int64) async throws -> StockSummary {
+        let output = try await apiClient.getStockSummary(medicationId: medicationId)
+        switch output {
+        case .ok(let response):
+            let data = try await Data(collecting: try response.body.any, upTo: 1_024_000)
+            return try decodeStockSummary(from: data)
+        case .undocumented(let status, _):
+            throw APIError.server(status: status)
+        }
+    }
+
+    func fetchStockHistory(medicationId: Int64) async throws -> [StockMovement] {
+        let output = try await apiClient.getStockHistory(medicationId: medicationId)
+        switch output {
+        case .ok(let response):
+            let data = try await Data(collecting: try response.body.any, upTo: 5_242_880)
+            return try decodeStockHistory(from: data)
+        case .undocumented(let status, _):
+            throw APIError.server(status: status)
+        }
+    }
 }
 
 // MARK: - Private helpers
@@ -218,5 +250,25 @@ private extension LiveMedicationRepository {
             throw APIError.decoding
         }
         return try Medication.from(dto)
+    }
+
+    func decodeStockSummary(from data: Data) throws -> StockSummary {
+        let dto: Components.Schemas.StockSummaryResponse
+        do {
+            dto = try decoder.decode(Components.Schemas.StockSummaryResponse.self, from: data)
+        } catch {
+            throw APIError.decoding
+        }
+        return try StockSummary.from(dto)
+    }
+
+    func decodeStockHistory(from data: Data) throws -> [StockMovement] {
+        let dtos: [Components.Schemas.StockMovementResponse]
+        do {
+            dtos = try decoder.decode([Components.Schemas.StockMovementResponse].self, from: data)
+        } catch {
+            throw APIError.decoding
+        }
+        return try dtos.map { try StockMovement.from($0) }
     }
 }
