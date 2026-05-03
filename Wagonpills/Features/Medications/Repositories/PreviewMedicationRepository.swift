@@ -40,7 +40,7 @@ struct PreviewMedicationRepository: MedicationRepository {
             doseQuantity: request.doseQuantity,
             currentStock: request.currentStock,
             lowStockThreshold: request.lowStockThreshold,
-            catalogItemId: nil,
+            catalogItemId: request.catalogItemId,
             regionCode: nil,
             createdAt: Date(),
             updatedAt: Date()

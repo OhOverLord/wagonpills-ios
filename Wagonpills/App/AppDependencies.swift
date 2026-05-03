@@ -8,6 +8,7 @@ final class AppDependencies {
     let medicationRepository: any MedicationRepository
     let reminderRepository: any ReminderRepository
     let intakeLogRepository: any IntakeLogRepository
+    let catalogRepository: any CatalogRepository
     let notificationRescheduler: any NotificationRescheduler
 
     init() {
@@ -22,6 +23,7 @@ final class AppDependencies {
         self.medicationRepository = medRepo
         self.reminderRepository = reminderRepo
         self.intakeLogRepository = LiveIntakeLogRepository(apiClient: apiClient, cache: cache)
+        self.catalogRepository = LiveCatalogRepository(apiClient: apiClient, cache: cache)
         self.notificationRescheduler = LiveNotificationRescheduler(
             reminderRepository: reminderRepo,
             medicationRepository: medRepo,

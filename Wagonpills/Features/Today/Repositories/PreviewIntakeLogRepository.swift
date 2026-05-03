@@ -44,5 +44,32 @@ struct PreviewIntakeLogRepository: IntakeLogRepository {
             return true
         }
     }
+    static func makeSampleLogs(medicationId: Int64 = 1) -> [IntakeLog] {
+        let calendar = Calendar.current
+        let now = Date()
+        var result: [IntakeLog] = []
+        var id: Int64 = 1
+        let statuses: [IntakeStatus] = [.taken, .skipped, .missed]
+        for dayOffset in 0..<10 {
+            guard let day = calendar.date(byAdding: .day, value: -dayOffset, to: now) else { continue }
+            for (idx, hour) in [8, 14, 20].enumerated() {
+                var comps = calendar.dateComponents([.year, .month, .day], from: day)
+                comps.hour = hour
+                comps.minute = 0
+                guard let scheduled = calendar.date(from: comps) else { continue }
+                let status = statuses[idx % statuses.count]
+                result.append(IntakeLog(
+                    id: id,
+                    medicationId: medicationId,
+                    scheduledTime: scheduled,
+                    status: status,
+                    note: status == .skipped ? "Felt nauseous" : nil,
+                    takenAt: status == .taken ? scheduled : nil
+                ))
+                id += 1
+            }
+        }
+        return result
+    }
 }
 #endif

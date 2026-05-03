@@ -5,6 +5,7 @@ struct MainTabView: View {
     let medicationRepository: any MedicationRepository
     let reminderRepository: any ReminderRepository
     let intakeLogRepository: any IntakeLogRepository
+    let catalogRepository: any CatalogRepository
 
     @Environment(\.notificationRescheduler) private var notificationRescheduler
 
@@ -20,7 +21,9 @@ struct MainTabView: View {
 
             MedicationListView(
                 viewModel: MedicationListViewModel(repository: medicationRepository),
-                reminderRepository: reminderRepository
+                reminderRepository: reminderRepository,
+                intakeLogRepository: intakeLogRepository,
+                catalogRepository: catalogRepository
             )
             .tabItem { Label("Medications", systemImage: "pills") }
 
@@ -47,7 +50,8 @@ struct MainTabView: View {
         authRepository: PreviewAuthRepository(),
         medicationRepository: PreviewMedicationRepository(),
         reminderRepository: PreviewReminderRepository(),
-        intakeLogRepository: PreviewIntakeLogRepository()
+        intakeLogRepository: PreviewIntakeLogRepository(),
+        catalogRepository: PreviewCatalogRepository()
     )
     .environment(AuthState.preview(signedIn: "user@example.com"))
 }

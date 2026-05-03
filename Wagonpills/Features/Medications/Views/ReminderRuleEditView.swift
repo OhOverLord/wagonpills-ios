@@ -73,6 +73,18 @@ struct ReminderRuleEditView: View {
             } message: { error in
                 Text(error.localizedDescription)
             }
+            .alert(
+                "Could Not Save",
+                isPresented: Binding(
+                    get: { vm.saveError != nil },
+                    set: { if !$0 { vm.saveError = nil } }
+                ),
+                presenting: vm.saveError
+            ) { _ in
+                Button("OK", role: .cancel) { vm.saveError = nil }
+            } message: { error in
+                Text(error.localizedDescription)
+            }
         }
     }
 

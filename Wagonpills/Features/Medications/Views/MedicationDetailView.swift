@@ -38,7 +38,7 @@ struct MedicationDetailView: View {
         .sheet(
             item: $editingMedication,
             onDismiss: { Task { await vm.load() } },
-            content: { med in MedicationEditView(mode: .edit(med), repository: vm.repository) }
+            content: { med in MedicationEditView(mode: .edit(med), repository: vm.repository, catalogRepository: vm.catalogRepository) }
         )
         .sheet(
             isPresented: $showStockSheet,
@@ -68,6 +68,7 @@ struct MedicationDetailView: View {
                 scheduleSection(med)
                 remindersSection(med)
                 stockSection(med)
+                historySection(med)
                 metadataSection(med)
             }
             .padding()
@@ -184,6 +185,18 @@ struct MedicationDetailView: View {
         }
     }
 
+    private func historySection(_ med: Medication) -> some View {
+        SectionCard(title: "History") {
+            NavigationLink(destination: IntakeHistoryView(viewModel: IntakeHistoryViewModel(
+                medicationId: med.id,
+                repository: vm.intakeLogRepository
+            ))) {
+                Text("View Intake History")
+                    .font(.subheadline)
+            }
+        }
+    }
+
     private func metadataSection(_ med: Medication) -> some View {
         SectionCard(title: "Info") {
             LabeledContent("Added", value: med.createdAt.formatted(.relative(presentation: .named)))
@@ -247,7 +260,11 @@ private struct SectionCard<Content: View>: View {
             ]),
             reminderRepository: PreviewReminderRepository(
                 rules: PreviewReminderRepository.makePreviewRules()
-            )
+            ),
+            intakeLogRepository: PreviewIntakeLogRepository(
+                logs: PreviewIntakeLogRepository.makeSampleLogs(medicationId: 1)
+            ),
+            catalogRepository: PreviewCatalogRepository()
         ))
     }
 }
@@ -265,7 +282,9 @@ private struct SectionCard<Content: View>: View {
                     createdAt: Date(), updatedAt: Date()
                 )
             ]),
-            reminderRepository: PreviewReminderRepository()
+            reminderRepository: PreviewReminderRepository(),
+            intakeLogRepository: PreviewIntakeLogRepository(),
+            catalogRepository: PreviewCatalogRepository()
         ))
     }
 }

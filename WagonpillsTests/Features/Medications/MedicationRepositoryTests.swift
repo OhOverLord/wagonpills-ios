@@ -208,7 +208,7 @@ struct MedicationRepositoryTests {
         let request = MedicationCreateRequest(
             name: "Ibuprofen", dosageText: nil, instructions: nil,
             startDate: Date(), endDate: nil, stockUnit: .tablet,
-            doseQuantity: nil, lowStockThreshold: nil, currentStock: nil
+            doseQuantity: nil, lowStockThreshold: nil, currentStock: nil, catalogItemId: nil
         )
         let med = try await repo.create(request)
 
@@ -228,7 +228,7 @@ struct MedicationRepositoryTests {
         let request = MedicationCreateRequest(
             name: "", dosageText: nil, instructions: nil,
             startDate: Date(), endDate: nil, stockUnit: .tablet,
-            doseQuantity: nil, lowStockThreshold: nil, currentStock: nil
+            doseQuantity: nil, lowStockThreshold: nil, currentStock: nil, catalogItemId: nil
         )
         await #expect(throws: APIError.validation(message: nil)) {
             try await repo.create(request)

@@ -422,3 +422,87 @@ Not a skill — too rare to justify one. Procedure:
    schemas, changed required fields, broken `$ref`s). A silent
    field-rename in a DTO can break the Repository mapping layer
    without a compile error.
+
+## Coding conventions
+
+- Follow SwiftLint rules strictly. The project is configured to fail on warnings.
+- Write clean, readable, and maintainable Swift code — this is part of thesis evaluation (N6 Maintainability).
+
+### Naming
+
+- Use descriptive and meaningful names for variables, constants, functions, and types.
+- Avoid one-letter variable names (`i`, `j`, `x`, etc.) unless explicitly allowed by SwiftLint and used in a very small, obvious scope.
+- Prefer names like:
+  - `index`, `itemIndex`, `medicationIndex`
+  - `intakeLog`, `medication`, `reminderRule`
+  - `previewLog`, `sampleMedication`
+- Allowed short names (per SwiftLint config): `id`, `vm`, `x`, `y`, `to`, `in`
+- Type names use UpperCamelCase, variables and functions use lowerCamelCase.
+
+### Optionals and Safety
+
+- Never use force unwrapping (`!`) in production code.
+- Use:
+  - `guard let`
+  - `if let`
+  - safe default values
+- Force unwrap is only acceptable in tests when justified.
+
+### Collections and Optionals
+
+- Use `.isEmpty` instead of `count == 0`.
+- Use `.first(where:)` instead of `.filter { }.first`.
+- Avoid unnecessary intermediate collections.
+
+### Initialization
+
+- Avoid redundant `.init` when type inference is clear.
+- Use explicit `.init(...)` when it improves readability.
+
+### Closures
+
+- Follow standard spacing rules for closures.
+- Keep closures short and readable.
+- Extract complex logic into named functions.
+
+### Strings
+
+- Avoid empty string literals `""` when a meaningful value is expected.
+- Use clear intent when returning or assigning empty strings.
+
+### Imports
+
+- Keep imports sorted alphabetically.
+- Do not import unused modules.
+
+### File and Type Size
+
+- Keep files under 500 lines (warning) and 800 lines (error).
+- Keep types under 300 lines (warning).
+- Split large types into smaller components (ViewModel, Repository, Model).
+
+### Functions
+
+- Keep functions short and focused:
+  - warning at 50 lines
+  - error at 100 lines
+- Each function should have a single responsibility.
+
+### General Principles
+
+- Prefer `let` over `var`.
+- Prefer value types (`struct`) over classes unless mutability or reference semantics are required.
+- Keep business logic out of Views — use ViewModels and Repositories.
+- Do not leave `TODO` or debug code in production paths.
+- Do not use `print` for debugging — use proper logging or `#if DEBUG`.
+
+### Testing
+
+- Tests may be more permissive (e.g. force unwrap if justified), but still should remain readable.
+- Use clear naming for test data and variables.
+
+### SwiftUI
+
+- Keep Views declarative and simple.
+- Avoid embedding business logic in Views.
+- Extract reusable components into `Core/UI`.

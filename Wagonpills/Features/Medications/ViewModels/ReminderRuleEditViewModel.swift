@@ -59,6 +59,7 @@ final class ReminderRuleEditViewModel {
     private(set) var saveState: SaveState = .idle
     private(set) var isDeleting: Bool = false
     var deleteError: APIError?
+    var saveError: APIError?
 
     let mode: Mode
     let medicationId: Int64
@@ -112,9 +113,11 @@ final class ReminderRuleEditViewModel {
             saveState = .saved
             Task { await notificationRescheduler.rescheduleNotifications(for: medicationId) }
         } catch let error as APIError {
-            saveState = .failed(error)
+            saveState = .idle
+            saveError = error
         } catch {
-            saveState = .failed(APIError.from(error))
+            saveState = .idle
+            saveError = APIError.from(error)
         }
     }
 

@@ -10,6 +10,7 @@ struct MedicationCreateRequest {
     let doseQuantity: Double?
     let lowStockThreshold: Double?
     let currentStock: Double?
+    let catalogItemId: Int64?
 }
 
 struct MedicationUpdateRequest {
@@ -37,6 +38,7 @@ extension MedicationCreateRequest {
             stockUnit: .init(rawValue: stockUnit.rawValue) ?? .tablet,
             doseQuantity: doseQuantity,
             lowStockThreshold: lowStockThreshold,
+            catalogItemId: catalogItemId,
             currentStock: currentStock
         )
     }
