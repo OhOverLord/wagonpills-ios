@@ -4,13 +4,19 @@ struct MainTabView: View {
     let authRepository: any AuthRepository
     let medicationRepository: any MedicationRepository
     let reminderRepository: any ReminderRepository
+    let intakeLogRepository: any IntakeLogRepository
 
     @Environment(\.notificationRescheduler) private var notificationRescheduler
 
     var body: some View {
         TabView {
-            TodayView()
-                .tabItem { Label("Today", systemImage: "checkmark.circle") }
+            TodayView(viewModel: TodayViewModel(
+                medicationRepository: medicationRepository,
+                reminderRepository: reminderRepository,
+                intakeLogRepository: intakeLogRepository,
+                notificationRescheduler: notificationRescheduler
+            ))
+            .tabItem { Label("Today", systemImage: "checkmark.circle") }
 
             MedicationListView(
                 viewModel: MedicationListViewModel(repository: medicationRepository),
@@ -30,8 +36,6 @@ struct MainTabView: View {
         .task { await rescheduleOnLaunch() }
     }
 
-    // TODO: Prompt 3.4 — also call rescheduleOnLaunch after confirming intake (TAKEN/SKIPPED)
-    // so the 64-notification window slides forward as doses are consumed.
     private func rescheduleOnLaunch() async {
         guard let medications = try? await medicationRepository.fetchAll(activeOnly: true) else { return }
         await notificationRescheduler.rescheduleAll(medicationIds: medications.map { $0.id })
@@ -42,7 +46,8 @@ struct MainTabView: View {
     MainTabView(
         authRepository: PreviewAuthRepository(),
         medicationRepository: PreviewMedicationRepository(),
-        reminderRepository: PreviewReminderRepository()
+        reminderRepository: PreviewReminderRepository(),
+        intakeLogRepository: PreviewIntakeLogRepository()
     )
     .environment(AuthState.preview(signedIn: "user@example.com"))
 }
