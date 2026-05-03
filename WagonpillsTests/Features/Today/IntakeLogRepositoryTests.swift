@@ -87,8 +87,8 @@ struct IntakeLogRepositoryTests {
         let client = MockIntakeLogClient()
         let cache = MockCacheStore()
         let scheduledAt = Date()
-        let dto = makeLogDTO(id: 42, medicationId: 1, status: .taken, scheduledAt: scheduledAt)
-        client.createResult = .success(try makeCreatedOutput(dto: dto))
+        let dto = Self.makeLogDTO(id: 42, medicationId: 1, status: .taken, scheduledAt: scheduledAt)
+        client.createResult = .success(try Self.makeCreatedOutput(dto: dto))
 
         let repo = LiveIntakeLogRepository(apiClient: client, cache: cache)
         let log = try await repo.logIntake(
@@ -162,8 +162,8 @@ struct IntakeLogRepositoryTests {
         let client = MockIntakeLogClient()
         let cache = MockCacheStore()
         let from = Calendar.current.startOfDay(for: Date())
-        let dto = makeLogDTO()
-        client.getResult = .success(try makeOkListOutput(dtos: [dto]))
+        let dto = Self.makeLogDTO()
+        client.getResult = .success(try Self.makeOkListOutput(dtos: [dto]))
 
         let repo = LiveIntakeLogRepository(apiClient: client, cache: cache)
 
