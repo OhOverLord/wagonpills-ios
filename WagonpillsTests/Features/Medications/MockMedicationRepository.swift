@@ -56,7 +56,7 @@ final class MockMedicationRepository: MedicationRepository, @unchecked Sendable 
             lowStockThreshold: 5,
             catalogItemId: nil,
             regionCode: nil,
-            createdAt: Date(),
+            createdAt: Date(timeIntervalSinceNow: -86400),
             updatedAt: Date()
         )
     }
