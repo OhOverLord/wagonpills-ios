@@ -79,5 +79,44 @@ struct PreviewMedicationRepository: MedicationRepository {
     func addStock(medicationId: Int64, quantity: Double, note: String?) async throws {}
 
     func adjustStock(medicationId: Int64, quantity: Double, note: String?) async throws {}
+
+    func fetchStockSummary(medicationId: Int64) async throws -> StockSummary {
+        if let error { throw error }
+        guard let med = medications.first(where: { $0.id == medicationId }) else {
+            throw APIError.notFound
+        }
+        return StockSummary(
+            medicationId: med.id,
+            medicationName: med.name,
+            currentStock: med.currentStock ?? 0,
+            unit: med.stockUnit,
+            lowStockThreshold: med.lowStockThreshold,
+            isLowStock: med.currentStock.map { stock in
+                med.lowStockThreshold.map { stock < $0 } ?? false
+            } ?? false
+        )
+    }
+
+    func fetchStockHistory(medicationId: Int64) async throws -> [StockMovement] {
+        if let error { throw error }
+        let now = Date()
+        return [
+            StockMovement(
+                id: 1, medicationId: medicationId, movementType: .add,
+                quantity: 30, unit: .tablet, relatedIntakeLogId: nil,
+                note: "Bought at pharmacy", createdAt: Calendar.current.date(byAdding: .day, value: -7, to: now) ?? now
+            ),
+            StockMovement(
+                id: 2, medicationId: medicationId, movementType: .consume,
+                quantity: 2, unit: .tablet, relatedIntakeLogId: 10,
+                note: nil, createdAt: Calendar.current.date(byAdding: .day, value: -3, to: now) ?? now
+            ),
+            StockMovement(
+                id: 3, medicationId: medicationId, movementType: .adjust,
+                quantity: -1, unit: .tablet, relatedIntakeLogId: nil,
+                note: "Correction", createdAt: Calendar.current.date(byAdding: .day, value: -1, to: now) ?? now
+            )
+        ]
+    }
 }
 #endif

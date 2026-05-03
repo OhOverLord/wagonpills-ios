@@ -4,7 +4,6 @@ struct MedicationDetailView: View {
     @State private var vm: MedicationDetailViewModel
     @State private var reminderVM: ReminderListViewModel
     @State private var editingMedication: Medication?
-    @State private var showStockSheet = false
 
     init(viewModel: MedicationDetailViewModel) {
         _vm = State(wrappedValue: viewModel)
@@ -39,15 +38,6 @@ struct MedicationDetailView: View {
             item: $editingMedication,
             onDismiss: { Task { await vm.load() } },
             content: { med in MedicationEditView(mode: .edit(med), repository: vm.repository, catalogRepository: vm.catalogRepository) }
-        )
-        .sheet(
-            isPresented: $showStockSheet,
-            onDismiss: { Task { await vm.load() } },
-            content: {
-                if case .loaded(let med) = vm.state {
-                    StockUpdateView(medicationId: med.id, repository: vm.repository)
-                }
-            }
         )
         .task {
             await vm.load()
@@ -178,10 +168,10 @@ struct MedicationDetailView: View {
                 Text("Not tracked")
                     .foregroundStyle(.secondary)
             }
-            Button("Update Stock") {
-                showStockSheet = true
+            NavigationLink(destination: StockView(medicationId: med.id, repository: vm.repository)) {
+                Text("View Full History")
+                    .font(.subheadline)
             }
-            .font(.subheadline)
         }
     }
 

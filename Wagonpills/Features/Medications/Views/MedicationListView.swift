@@ -150,7 +150,19 @@ private struct MedicationRow: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            Spacer()
+            if isLowStock {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.yellow)
+                    .accessibilityLabel(Text("Low stock"))
+            }
         }
+    }
+
+    private var isLowStock: Bool {
+        guard let stock = medication.currentStock,
+              let threshold = medication.lowStockThreshold else { return false }
+        return stock < threshold
     }
 
     private var subtitleText: String {
