@@ -1,11 +1,5 @@
 import Observation
 
-// Single composition root for the app's dependency graph.
-// Stored as a @State in WagonpillsApp so it is constructed exactly once
-// per process, even if SwiftUI recreates the App struct multiple times.
-// All three objects must reference the same AuthState instance — keeping them
-// together here prevents the stale-capture bug that would arise from
-// constructing them separately in App.init().
 @MainActor
 @Observable
 final class AppDependencies {
@@ -13,6 +7,7 @@ final class AppDependencies {
     let authRepository: any AuthRepository
     let medicationRepository: any MedicationRepository
     let reminderRepository: any ReminderRepository
+    let intakeLogRepository: any IntakeLogRepository
     let notificationRescheduler: any NotificationRescheduler
 
     init() {
@@ -26,6 +21,7 @@ final class AppDependencies {
         self.authRepository = LiveAuthRepository(apiClient: apiClient)
         self.medicationRepository = medRepo
         self.reminderRepository = reminderRepo
+        self.intakeLogRepository = LiveIntakeLogRepository(apiClient: apiClient, cache: cache)
         self.notificationRescheduler = LiveNotificationRescheduler(
             reminderRepository: reminderRepo,
             medicationRepository: medRepo,
