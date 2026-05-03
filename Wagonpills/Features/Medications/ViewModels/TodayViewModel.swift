@@ -142,13 +142,13 @@ private extension TodayViewModel {
                 note: note
             )
             applyLog(log, toDoseWithId: dose.id)
-            rescheduleAsync(medicationId: dose.medicationId)
+            await notificationRescheduler.rescheduleNotifications(for: dose.medicationId)
         } catch APIError.conflict(_) {
             await load()
             if case .loaded(let doses) = state,
                let refreshed = doses.first(where: { $0.id == dose.id }),
                refreshed.log != nil {
-                rescheduleAsync(medicationId: dose.medicationId)
+                await notificationRescheduler.rescheduleNotifications(for: dose.medicationId)
             }
         } catch let error as APIError {
             actionError = error
@@ -164,11 +164,6 @@ private extension TodayViewModel {
         updatedDose.log = log
         doses[idx] = updatedDose
         state = .loaded(doses)
-    }
-
-    func rescheduleAsync(medicationId: Int64) {
-        let rescheduler = notificationRescheduler
-        Task { await rescheduler.rescheduleNotifications(for: medicationId) }
     }
 
     func handleLoadError(_ error: APIError) {
