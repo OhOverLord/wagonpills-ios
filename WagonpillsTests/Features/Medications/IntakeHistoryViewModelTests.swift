@@ -48,7 +48,8 @@ struct IntakeHistoryViewModelTests {
 
         await vm.load()
         #expect(repo.fetchLogsCallCount == 1)
-        #expect(repo.lastFetchStatus! == nil)
+        let fetchedStatus = try #require(repo.lastFetchStatus)
+        #expect(fetchedStatus == nil)
 
         vm.statusFilter = .missed
         await vm.load()
