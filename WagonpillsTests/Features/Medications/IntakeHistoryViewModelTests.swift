@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import Wagonpills
 
@@ -28,7 +29,7 @@ struct IntakeHistoryViewModelTests {
     @Test("load() with .taken filter calls repository with .taken status")
     func loadWithTakenFilterCallsRepoWithTakenStatus() async throws {
         let repo = MockIntakeLogRepository()
-        repo.fetchLogsResult = .success([makeLog(id: 1, status: .taken)])
+        repo.fetchLogsResult = .success([Self.makeLog(id: 1, status: .taken)])
         let vm = IntakeHistoryViewModel(medicationId: 7, repository: repo)
         vm.statusFilter = .taken
 
@@ -42,7 +43,7 @@ struct IntakeHistoryViewModelTests {
     @Test("changing statusFilter triggers new load with updated filter")
     func statusFilterChangeLoadsWithNewFilter() async throws {
         let repo = MockIntakeLogRepository()
-        repo.fetchLogsResult = .success([makeLog(id: 1, status: .missed)])
+        repo.fetchLogsResult = .success([Self.makeLog(id: 1, status: .missed)])
         let vm = IntakeHistoryViewModel(medicationId: 1, repository: repo)
 
         await vm.load()
@@ -69,7 +70,7 @@ struct IntakeHistoryViewModelTests {
     @Test("non-empty result transitions to .loaded state")
     func nonEmptyResultTransitionsToLoadedState() async {
         let repo = MockIntakeLogRepository()
-        let logs = [makeLog(id: 1, status: .taken), makeLog(id: 2, status: .missed)]
+        let logs = [Self.makeLog(id: 1, status: .taken), Self.makeLog(id: 2, status: .missed)]
         repo.fetchLogsResult = .success(logs)
         let vm = IntakeHistoryViewModel(medicationId: 1, repository: repo)
 
@@ -101,10 +102,10 @@ struct IntakeHistoryViewModelTests {
     func adherenceSummaryCountsTakenLogs() async {
         let repo = MockIntakeLogRepository()
         repo.fetchLogsResult = .success([
-            makeLog(id: 1, status: .taken),
-            makeLog(id: 2, status: .taken),
-            makeLog(id: 3, status: .missed),
-            makeLog(id: 4, status: .skipped)
+            Self.makeLog(id: 1, status: .taken),
+            Self.makeLog(id: 2, status: .taken),
+            Self.makeLog(id: 3, status: .missed),
+            Self.makeLog(id: 4, status: .skipped)
         ])
         let vm = IntakeHistoryViewModel(medicationId: 1, repository: repo)
         await vm.load()
@@ -118,9 +119,9 @@ struct IntakeHistoryViewModelTests {
     func logsByDayGroupsNewestFirst() async {
         let repo = MockIntakeLogRepository()
         repo.fetchLogsResult = .success([
-            makeLog(id: 1, status: .taken, daysAgo: 0),
-            makeLog(id: 2, status: .taken, daysAgo: 1),
-            makeLog(id: 3, status: .missed, daysAgo: 1)
+            Self.makeLog(id: 1, status: .taken, daysAgo: 0),
+            Self.makeLog(id: 2, status: .taken, daysAgo: 1),
+            Self.makeLog(id: 3, status: .missed, daysAgo: 1)
         ])
         let vm = IntakeHistoryViewModel(medicationId: 1, repository: repo)
         await vm.load()
