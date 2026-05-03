@@ -63,14 +63,21 @@ final class ReminderRuleEditViewModel {
     let mode: Mode
     let medicationId: Int64
     private let repository: any ReminderRepository
+    private let notificationRescheduler: any NotificationRescheduler
 
     // IDs of server-side times that existed when the form opened.
     private var originalTimeIds: Set<Int64> = []
 
-    init(mode: Mode, medicationId: Int64, repository: any ReminderRepository) {
+    init(
+        mode: Mode,
+        medicationId: Int64,
+        repository: any ReminderRepository,
+        notificationRescheduler: any NotificationRescheduler = NoOpNotificationRescheduler()
+    ) {
         self.mode = mode
         self.medicationId = medicationId
         self.repository = repository
+        self.notificationRescheduler = notificationRescheduler
 
         if case .edit(let rule) = mode {
             active = rule.active
@@ -103,6 +110,7 @@ final class ReminderRuleEditViewModel {
                 try await saveEdit(ruleId: rule.id)
             }
             saveState = .saved
+            Task { await notificationRescheduler.rescheduleNotifications(for: medicationId) }
         } catch let error as APIError {
             saveState = .failed(error)
         } catch {
@@ -117,6 +125,7 @@ final class ReminderRuleEditViewModel {
         do {
             try await repository.deleteRule(medicationId: medicationId, ruleId: rule.id)
             saveState = .saved
+            Task { await notificationRescheduler.rescheduleNotifications(for: medicationId) }
         } catch let error as APIError {
             deleteError = error
         } catch {

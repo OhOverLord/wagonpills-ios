@@ -1,10 +1,13 @@
 import SwiftUI
+import UserNotifications
 
 struct ReminderRuleEditView: View {
     @State private var vm: ReminderRuleEditViewModel
     @State private var showTimePicker = false
     @State private var pickerTime = Date()
     @State private var showDeleteConfirmation = false
+    @State private var showPermissionSheet = false
+    @State private var openTimePickerAfterPermission = false
     @Environment(\.dismiss) private var dismiss
 
     init(viewModel: ReminderRuleEditViewModel) {
@@ -38,6 +41,15 @@ struct ReminderRuleEditView: View {
             }
             .sheet(isPresented: $showTimePicker) {
                 timePickerSheet
+            }
+            .sheet(isPresented: $showPermissionSheet) {
+                NotificationPermissionView()
+                    .onDisappear {
+                        if openTimePickerAfterPermission {
+                            openTimePickerAfterPermission = false
+                            showTimePicker = true
+                        }
+                    }
             }
             .confirmationDialog(
                 "Delete this reminder rule?",
@@ -181,10 +193,7 @@ struct ReminderRuleEditView: View {
             }
 
             Button {
-                pickerTime = Calendar.current.date(
-                    bySettingHour: 8, minute: 0, second: 0, of: Date()
-                ) ?? Date()
-                showTimePicker = true
+                Task { await handleAddTimeTapped() }
             } label: {
                 Text("+ Add Time")
                     .foregroundStyle(.secondary)
@@ -207,6 +216,22 @@ struct ReminderRuleEditView: View {
             }
             .frame(maxWidth: .infinity, alignment: .center)
         }
+    }
+
+    // MARK: - Helpers
+
+    private func handleAddTimeTapped() async {
+        pickerTime = Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: Date()) ?? Date()
+
+        if case .create = vm.mode, vm.times.isEmpty {
+            let settings = await UNUserNotificationCenter.current().notificationSettings()
+            if settings.authorizationStatus == .notDetermined {
+                openTimePickerAfterPermission = true
+                showPermissionSheet = true
+                return
+            }
+        }
+        showTimePicker = true
     }
 
     // MARK: - Time picker sheet

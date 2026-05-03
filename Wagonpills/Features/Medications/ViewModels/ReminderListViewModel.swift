@@ -15,10 +15,16 @@ final class ReminderListViewModel {
     private(set) var state: State = .idle
     let medicationId: Int64
     let repository: any ReminderRepository
+    private let notificationRescheduler: any NotificationRescheduler
 
-    init(medicationId: Int64, repository: any ReminderRepository) {
+    init(
+        medicationId: Int64,
+        repository: any ReminderRepository,
+        notificationRescheduler: any NotificationRescheduler = NoOpNotificationRescheduler()
+    ) {
         self.medicationId = medicationId
         self.repository = repository
+        self.notificationRescheduler = notificationRescheduler
     }
 
     func load() async {
@@ -44,6 +50,7 @@ final class ReminderListViewModel {
     func delete(rule: ReminderRule) async {
         do {
             try await repository.deleteRule(medicationId: medicationId, ruleId: rule.id)
+            Task { await notificationRescheduler.rescheduleNotifications(for: medicationId) }
             await fetch()
         } catch let error as APIError {
             state = .failed(error)
