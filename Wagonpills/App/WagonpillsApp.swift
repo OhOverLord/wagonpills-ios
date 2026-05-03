@@ -12,6 +12,7 @@ struct WagonpillsApp: App {
                 reminderRepository: deps.reminderRepository
             )
             .environment(deps.authState)
+            .environment(\.notificationRescheduler, deps.notificationRescheduler)
         }
     }
 }

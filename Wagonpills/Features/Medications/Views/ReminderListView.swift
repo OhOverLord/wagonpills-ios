@@ -5,6 +5,7 @@ struct ReminderListView: View {
     @State private var showCreateSheet = false
     @State private var editingRule: ReminderRule?
     @State private var ruleToDelete: ReminderRule?
+    @Environment(\.notificationRescheduler) private var notificationRescheduler
 
     init(viewModel: ReminderListViewModel) {
         _vm = State(wrappedValue: viewModel)
@@ -42,7 +43,8 @@ struct ReminderListView: View {
                 ReminderRuleEditView(viewModel: ReminderRuleEditViewModel(
                     mode: .create,
                     medicationId: vm.medicationId,
-                    repository: vm.repository
+                    repository: vm.repository,
+                    notificationRescheduler: notificationRescheduler
                 ))
             }
         )
@@ -53,7 +55,8 @@ struct ReminderListView: View {
                 ReminderRuleEditView(viewModel: ReminderRuleEditViewModel(
                     mode: .edit(rule),
                     medicationId: vm.medicationId,
-                    repository: vm.repository
+                    repository: vm.repository,
+                    notificationRescheduler: notificationRescheduler
                 ))
             }
         )

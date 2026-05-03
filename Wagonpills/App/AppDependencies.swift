@@ -13,15 +13,23 @@ final class AppDependencies {
     let authRepository: any AuthRepository
     let medicationRepository: any MedicationRepository
     let reminderRepository: any ReminderRepository
+    let notificationRescheduler: any NotificationRescheduler
 
     init() {
         let tokenStore = KeychainStore()
         let state = AuthState(tokenStore: tokenStore)
         let apiClient = APIClient(tokenStore: tokenStore, authState: state)
         let cache = URLCacheStore()
+        let medRepo = LiveMedicationRepository(apiClient: apiClient, cache: cache)
+        let reminderRepo = LiveReminderRepository(apiClient: apiClient, cache: cache)
         self.authState = state
         self.authRepository = LiveAuthRepository(apiClient: apiClient)
-        self.medicationRepository = LiveMedicationRepository(apiClient: apiClient, cache: cache)
-        self.reminderRepository = LiveReminderRepository(apiClient: apiClient, cache: cache)
+        self.medicationRepository = medRepo
+        self.reminderRepository = reminderRepo
+        self.notificationRescheduler = LiveNotificationRescheduler(
+            reminderRepository: reminderRepo,
+            medicationRepository: medRepo,
+            scheduler: LiveNotificationScheduler()
+        )
     }
 }
