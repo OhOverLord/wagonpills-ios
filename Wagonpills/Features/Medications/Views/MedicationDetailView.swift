@@ -2,11 +2,16 @@ import SwiftUI
 
 struct MedicationDetailView: View {
     @State private var vm: MedicationDetailViewModel
+    @State private var reminderVM: ReminderListViewModel
     @State private var editingMedication: Medication?
     @State private var showStockSheet = false
 
     init(viewModel: MedicationDetailViewModel) {
         _vm = State(wrappedValue: viewModel)
+        _reminderVM = State(wrappedValue: ReminderListViewModel(
+            medicationId: viewModel.medicationId,
+            repository: viewModel.reminderRepository
+        ))
     }
 
     var body: some View {
@@ -44,7 +49,10 @@ struct MedicationDetailView: View {
                 }
             }
         )
-        .task { await vm.load() }
+        .task {
+            await vm.load()
+            await reminderVM.load()
+        }
     }
 
     private var navigationTitle: String {
@@ -58,6 +66,7 @@ struct MedicationDetailView: View {
                 headerSection(med)
                 dosageSection(med)
                 scheduleSection(med)
+                remindersSection(med)
                 stockSection(med)
                 metadataSection(med)
             }
@@ -102,6 +111,54 @@ struct MedicationDetailView: View {
                 "End date",
                 value: med.endDate.map { $0.formatted(date: .abbreviated, time: .omitted) } ?? "Ongoing"
             )
+        }
+    }
+
+    private func remindersSection(_ med: Medication) -> some View {
+        SectionCard(title: "Reminders") {
+            switch reminderVM.state {
+            case .idle, .loading:
+                ProgressView()
+            case .empty:
+                Text("No reminders set")
+                    .foregroundStyle(.secondary)
+            case .loaded(let rules):
+                ForEach(rules) { rule in
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(reminderTitle(rule))
+                            .font(.subheadline.bold())
+                        if !rule.times.isEmpty {
+                            Text(rule.times.map(\.displayString).sorted().joined(separator: ", "))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.vertical, 2)
+                }
+            case .failed:
+                Text("Could not load reminders")
+                    .foregroundStyle(.secondary)
+            }
+
+            NavigationLink(
+                destination: ReminderListView(viewModel: reminderVM)
+                    .onDisappear { Task { await reminderVM.refresh() } }
+            ) {
+                Text("Manage Reminders")
+                    .font(.subheadline)
+            }
+        }
+    }
+
+    private func reminderTitle(_ rule: ReminderRule) -> String {
+        switch rule.repeatType {
+        case .daily:
+            return "Daily"
+        case .weekly:
+            let days = rule.daysOfWeek.sorted().map(\.shortName).joined(separator: ", ")
+            return days.isEmpty ? "Weekly" : days
+        case .interval:
+            return "Every \(rule.intervalDays ?? 1) days"
         }
     }
 
@@ -187,7 +244,10 @@ private struct SectionCard<Content: View>: View {
                     createdAt: Calendar.current.date(byAdding: .month, value: -3, to: Date()) ?? Date(),
                     updatedAt: Date()
                 )
-            ])
+            ]),
+            reminderRepository: PreviewReminderRepository(
+                rules: PreviewReminderRepository.makePreviewRules()
+            )
         ))
     }
 }
@@ -204,7 +264,8 @@ private struct SectionCard<Content: View>: View {
                     lowStockThreshold: nil, catalogItemId: nil, regionCode: nil,
                     createdAt: Date(), updatedAt: Date()
                 )
-            ])
+            ]),
+            reminderRepository: PreviewReminderRepository()
         ))
     }
 }

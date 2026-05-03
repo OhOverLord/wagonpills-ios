@@ -12,16 +12,16 @@ final class AppDependencies {
     let authState: AuthState
     let authRepository: any AuthRepository
     let medicationRepository: any MedicationRepository
+    let reminderRepository: any ReminderRepository
 
     init() {
         let tokenStore = KeychainStore()
         let state = AuthState(tokenStore: tokenStore)
         let apiClient = APIClient(tokenStore: tokenStore, authState: state)
+        let cache = URLCacheStore()
         self.authState = state
         self.authRepository = LiveAuthRepository(apiClient: apiClient)
-        self.medicationRepository = LiveMedicationRepository(
-            apiClient: apiClient,
-            cache: URLCacheStore()
-        )
+        self.medicationRepository = LiveMedicationRepository(apiClient: apiClient, cache: cache)
+        self.reminderRepository = LiveReminderRepository(apiClient: apiClient, cache: cache)
     }
 }

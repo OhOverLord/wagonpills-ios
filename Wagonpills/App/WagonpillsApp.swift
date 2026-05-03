@@ -8,7 +8,8 @@ struct WagonpillsApp: App {
         WindowGroup {
             RootView(
                 authRepository: deps.authRepository,
-                medicationRepository: deps.medicationRepository
+                medicationRepository: deps.medicationRepository,
+                reminderRepository: deps.reminderRepository
             )
             .environment(deps.authState)
         }
