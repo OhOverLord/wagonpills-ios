@@ -3,6 +3,7 @@ import SwiftUI
 struct MedicationDetailView: View {
     @State private var vm: MedicationDetailViewModel
     @State private var reminderVM: ReminderListViewModel
+    @State private var changesVM: MedicationChangesViewModel
     @State private var editingMedication: Medication?
 
     init(viewModel: MedicationDetailViewModel) {
@@ -10,6 +11,10 @@ struct MedicationDetailView: View {
         _reminderVM = State(wrappedValue: ReminderListViewModel(
             medicationId: viewModel.medicationId,
             repository: viewModel.reminderRepository
+        ))
+        _changesVM = State(wrappedValue: MedicationChangesViewModel(
+            medicationId: viewModel.medicationId,
+            repository: viewModel.repository
         ))
     }
 
@@ -42,6 +47,7 @@ struct MedicationDetailView: View {
         .task {
             await vm.load()
             await reminderVM.load()
+            await changesVM.load()
         }
     }
 
@@ -59,6 +65,7 @@ struct MedicationDetailView: View {
                 remindersSection(med)
                 stockSection(med)
                 historySection(med)
+                changesSection(med)
                 metadataSection(med)
             }
             .padding()
@@ -184,6 +191,39 @@ struct MedicationDetailView: View {
                 Text("View Intake History")
                     .font(.subheadline)
             }
+        }
+    }
+
+    private func changesSection(_ med: Medication) -> some View {
+        SectionCard(title: "Changes") {
+            if case .loaded(let changes) = changesVM.listState, let latest = changes.first {
+                HStack {
+                    Text(latest.changeType.displayName)
+                        .font(.caption.bold())
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(changeTypeColor(latest.changeType).opacity(0.15))
+                        .foregroundStyle(changeTypeColor(latest.changeType))
+                        .clipShape(Capsule())
+                    Spacer()
+                    Text(latest.changedAt, style: .relative)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            NavigationLink(destination: MedicationChangesView(viewModel: changesVM, currentDosageText: med.dosageText)) {
+                Text("View All Changes")
+                    .font(.subheadline)
+            }
+        }
+    }
+
+    private func changeTypeColor(_ type: MedicationChangeType) -> Color {
+        switch type {
+        case .start:          return .green
+        case .stop:           return .red
+        case .dosageChange:   return .orange
+        case .scheduleChange: return .blue
         }
     }
 

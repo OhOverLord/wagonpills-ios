@@ -1,5 +1,13 @@
 import Foundation
 
+struct MedicationChangeCreateRequest: Sendable {
+    var changeType: MedicationChangeType
+    var doctorVisitId: Int64?
+    var oldValue: String?
+    var newValue: String?
+    var reason: String?
+}
+
 struct MedicationCreateRequest {
     let name: String
     let dosageText: String?

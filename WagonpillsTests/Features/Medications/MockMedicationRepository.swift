@@ -61,6 +61,21 @@ final class MockMedicationRepository: MedicationRepository, @unchecked Sendable 
         return try fetchStockHistoryResult.get()
     }
 
+    var fetchChangesResult: Result<[MedicationChange], Error> = .success([])
+    var createChangeResult: Result<MedicationChange, Error> = .failure(APIError.unexpected("not configured"))
+    private(set) var fetchChangesCallCount = 0
+    private(set) var createChangeCallCount = 0
+
+    func fetchChanges(medicationId: Int64) async throws -> [MedicationChange] {
+        fetchChangesCallCount += 1
+        return try fetchChangesResult.get()
+    }
+
+    func createChange(medicationId: Int64, _ request: MedicationChangeCreateRequest) async throws -> MedicationChange {
+        createChangeCallCount += 1
+        return try createChangeResult.get()
+    }
+
     static func makeTestMedication(id: Int64 = 1, name: String = "Aspirin") -> Medication {
         Medication(
             id: id,

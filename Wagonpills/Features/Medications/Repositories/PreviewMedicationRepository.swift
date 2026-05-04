@@ -118,5 +118,37 @@ struct PreviewMedicationRepository: MedicationRepository {
             )
         ]
     }
+
+    func fetchChanges(medicationId: Int64) async throws -> [MedicationChange] {
+        if let error { throw error }
+        let now = Date()
+        return [
+            MedicationChange(
+                id: 1, medicationId: medicationId, medicationName: "Metformin",
+                doctorVisitId: nil, changeType: .start, oldValue: nil, newValue: nil,
+                reason: "New prescription", changedAt: Calendar.current.date(byAdding: .month, value: -3, to: now) ?? now
+            ),
+            MedicationChange(
+                id: 2, medicationId: medicationId, medicationName: "Metformin",
+                doctorVisitId: 5, changeType: .dosageChange, oldValue: "500mg", newValue: "1000mg",
+                reason: "Increased for better control", changedAt: Calendar.current.date(byAdding: .day, value: -14, to: now) ?? now
+            )
+        ]
+    }
+
+    func createChange(medicationId: Int64, _ request: MedicationChangeCreateRequest) async throws -> MedicationChange {
+        if let error { throw error }
+        return MedicationChange(
+            id: Int64.random(in: 100...999),
+            medicationId: medicationId,
+            medicationName: medications.first(where: { $0.id == medicationId })?.name ?? "Medication",
+            doctorVisitId: request.doctorVisitId,
+            changeType: request.changeType,
+            oldValue: request.oldValue.flatMap { $0.isEmpty ? nil : $0 },
+            newValue: request.newValue.flatMap { $0.isEmpty ? nil : $0 },
+            reason: request.reason.flatMap { $0.isEmpty ? nil : $0 },
+            changedAt: Date()
+        )
+    }
 }
 #endif

@@ -66,6 +66,17 @@ final class MockMedicationClient: MedicationClient, @unchecked Sendable {
     func getStockHistory(medicationId: Int64) async throws -> Operations.GetHistory.Output {
         .ok(.init(body: .any(HTTPBody(Data("[]".utf8)))))
     }
+
+    func getMedicationChanges(medicationId: Int64) async throws -> Operations.GetByMedication1.Output {
+        .ok(.init(body: .any(HTTPBody(Data("[]".utf8)))))
+    }
+
+    func createMedicationChange(
+        medicationId: Int64,
+        _ body: Components.Schemas.CreateMedicationChangeRequest
+    ) async throws -> Operations.Create7.Output {
+        .created(.init(body: .any(HTTPBody(Data("{}".utf8)))))
+    }
 }
 
 // MARK: - Helpers
