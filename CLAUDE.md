@@ -357,21 +357,6 @@ must keep ATS strict.
 
 ---
 
-## Coding conventions
-
-- File header: none. No author / date comments.
-- One type per file when reasonable; small related helpers may share a
-  file.
-- Prefer `let` over `var`; prefer value types over reference types
-  except for ViewModels and stateful services.
-- Use `Swift Testing` (`@Test`, `#expect`) for new tests; XCTest is
-  acceptable in existing files. Don't mix in one file.
-- Comments explain _why_, not _what_. The code shows the what.
-- Strings shown to the user go through `LocalizedStringKey` even if
-  there's no other locale yet — easier to extract later.
-
----
-
 ## How Claude should work in this repo
 
 - Be concise and practical, mentor-style. Not a tutorial.
