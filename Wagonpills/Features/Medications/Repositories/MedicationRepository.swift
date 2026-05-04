@@ -13,6 +13,8 @@ protocol MedicationRepository: Sendable {
     func adjustStock(medicationId: Int64, quantity: Double, note: String?) async throws
     func fetchStockSummary(medicationId: Int64) async throws -> StockSummary
     func fetchStockHistory(medicationId: Int64) async throws -> [StockMovement]
+    func fetchChanges(medicationId: Int64) async throws -> [MedicationChange]
+    func createChange(medicationId: Int64, _ request: MedicationChangeCreateRequest) async throws -> MedicationChange
 }
 
 // MARK: - Narrow client protocol
@@ -29,6 +31,11 @@ protocol MedicationClient: Sendable {
     func adjustStock(medicationId: Int64, _ body: Components.Schemas.AdjustStockRequest) async throws -> Operations.AdjustStock.Output
     func getStockSummary(medicationId: Int64) async throws -> Operations.GetSummary.Output
     func getStockHistory(medicationId: Int64) async throws -> Operations.GetHistory.Output
+    func getMedicationChanges(medicationId: Int64) async throws -> Operations.GetByMedication1.Output
+    func createMedicationChange(
+        medicationId: Int64,
+        _ body: Components.Schemas.CreateMedicationChangeRequest
+    ) async throws -> Operations.Create7.Output
 }
 
 extension APIClient: MedicationClient {
@@ -58,6 +65,15 @@ extension APIClient: MedicationClient {
     }
     func getStockHistory(medicationId: Int64) async throws -> Operations.GetHistory.Output {
         try await client.getHistory(path: .init(medicationId: medicationId))
+    }
+    func getMedicationChanges(medicationId: Int64) async throws -> Operations.GetByMedication1.Output {
+        try await client.getByMedication1(path: .init(medicationId: medicationId))
+    }
+    func createMedicationChange(
+        medicationId: Int64,
+        _ body: Components.Schemas.CreateMedicationChangeRequest
+    ) async throws -> Operations.Create7.Output {
+        try await client.create7(path: .init(medicationId: medicationId), body: .json(body))
     }
 }
 
@@ -214,6 +230,37 @@ final class LiveMedicationRepository: MedicationRepository {
             throw APIError.server(status: status)
         }
     }
+
+    func fetchChanges(medicationId: Int64) async throws -> [MedicationChange] {
+        let output = try await apiClient.getMedicationChanges(medicationId: medicationId)
+        switch output {
+        case .ok(let response):
+            let data = try await Data(collecting: try response.body.any, upTo: 5_242_880)
+            return try decodeChangeList(from: data)
+        case .undocumented(let status, _):
+            throw APIError.server(status: status)
+        }
+    }
+
+    func createChange(medicationId: Int64, _ request: MedicationChangeCreateRequest) async throws -> MedicationChange {
+        let dto = Components.Schemas.CreateMedicationChangeRequest(
+            changeType: .init(rawValue: request.changeType.rawValue) ?? .dosageChange,
+            doctorVisitId: request.doctorVisitId,
+            oldValue: request.oldValue,
+            newValue: request.newValue,
+            reason: request.reason
+        )
+        let output = try await apiClient.createMedicationChange(medicationId: medicationId, dto)
+        switch output {
+        case .created(let response):
+            let data = try await Data(collecting: try response.body.any, upTo: 1_024_000)
+            return try decodeChangeSingle(from: data)
+        case .notFound:
+            throw APIError.notFound
+        case .undocumented(let status, _):
+            throw APIError.server(status: status)
+        }
+    }
 }
 
 // MARK: - Private helpers
@@ -270,5 +317,25 @@ private extension LiveMedicationRepository {
             throw APIError.decoding
         }
         return try dtos.map { try StockMovement.from($0) }
+    }
+
+    func decodeChangeList(from data: Data) throws -> [MedicationChange] {
+        let dtos: [Components.Schemas.MedicationChangeResponse]
+        do {
+            dtos = try decoder.decode([Components.Schemas.MedicationChangeResponse].self, from: data)
+        } catch {
+            throw APIError.decoding
+        }
+        return try dtos.map { try MedicationChange.from($0) }
+    }
+
+    func decodeChangeSingle(from data: Data) throws -> MedicationChange {
+        let dto: Components.Schemas.MedicationChangeResponse
+        do {
+            dto = try decoder.decode(Components.Schemas.MedicationChangeResponse.self, from: data)
+        } catch {
+            throw APIError.decoding
+        }
+        return try MedicationChange.from(dto)
     }
 }
