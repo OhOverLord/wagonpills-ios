@@ -63,7 +63,10 @@ struct MedicationChangesViewModelTests {
     func createChangeSavesAndReloads() async {
         let repo = MockMedicationRepository()
         let change = Self.makeChange()
+        let medication = MockMedicationRepository.makeTestMedication()
         repo.createChangeResult = .success(change)
+        repo.fetchByIdResult = .success(medication)
+        repo.updateResult = .success(medication)
         repo.fetchChangesResult = .success([change])
         let vm = MedicationChangesViewModel(medicationId: 1, repository: repo)
 
