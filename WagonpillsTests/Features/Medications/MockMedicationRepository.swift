@@ -37,9 +37,20 @@ final class MockMedicationRepository: MedicationRepository, @unchecked Sendable 
         try deleteResult.get()
     }
 
-    func addStock(medicationId: Int64, quantity: Double, note: String?) async throws {}
+    var addStockResult: Result<Void, Error> = .success(())
+    var adjustStockResult: Result<Void, Error> = .success(())
+    private(set) var addStockCallCount = 0
+    private(set) var adjustStockCallCount = 0
 
-    func adjustStock(medicationId: Int64, quantity: Double, note: String?) async throws {}
+    func addStock(medicationId: Int64, quantity: Double, note: String?) async throws {
+        addStockCallCount += 1
+        try addStockResult.get()
+    }
+
+    func adjustStock(medicationId: Int64, quantity: Double, note: String?) async throws {
+        adjustStockCallCount += 1
+        try adjustStockResult.get()
+    }
 
     var fetchStockSummaryResult: Result<StockSummary, Error> = .success(
         StockSummary(

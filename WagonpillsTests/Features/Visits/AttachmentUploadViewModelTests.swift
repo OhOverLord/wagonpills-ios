@@ -90,4 +90,46 @@ struct AttachmentUploadViewModelTests {
 
         #expect(vm.uploadState == .idle)
     }
+
+    @Test("upload(files: [], note: nil) leaves uploadState as .idle")
+    func uploadEmptyFilesStaysIdle() async {
+        let repo = MockVisitRepository()
+        let vm = AttachmentUploadViewModel(visitId: 1, repository: repo)
+
+        await vm.upload(files: [], note: nil)
+
+        #expect(vm.uploadState == .idle)
+    }
+
+    @Test("reset() from .partialFailure sets uploadState to .idle")
+    func resetFromPartialFailure() async {
+        let repo = MockVisitRepository()
+        repo.uploadResult = .failure(APIError.network)
+
+        let vm = AttachmentUploadViewModel(visitId: 1, repository: repo)
+        await vm.upload(files: [Self.file("file.pdf")], note: nil)
+
+        guard case .partialFailure = vm.uploadState else {
+            Issue.record("Expected .partialFailure before reset, got \(vm.uploadState)")
+            return
+        }
+        vm.reset()
+        #expect(vm.uploadState == .idle)
+    }
+
+    @Test("partial failure records the correct lastError string from the failing upload")
+    func partialFailureRecordsLastError() async {
+        let repo = MockVisitRepository()
+        let attachment = MockVisitRepository.makeTestAttachment(id: 1, fileName: "a.pdf")
+        repo.uploadResults = [.success(attachment), .failure(APIError.network)]
+
+        let vm = AttachmentUploadViewModel(visitId: 1, repository: repo)
+        await vm.upload(files: [Self.file("a.pdf"), Self.file("b.pdf")], note: nil)
+
+        guard case .partialFailure(_, _, let lastError) = vm.uploadState else {
+            Issue.record("Expected .partialFailure, got \(vm.uploadState)")
+            return
+        }
+        #expect(lastError == APIError.network.localizedDescription)
+    }
 }

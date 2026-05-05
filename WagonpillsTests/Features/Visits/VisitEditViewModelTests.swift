@@ -72,4 +72,31 @@ struct VisitEditViewModelTests {
 
         #expect(vm.saveState == .failed(.network))
     }
+
+    @Test("save() in create mode with generic Error sets saveState to .failed(.unexpected)")
+    func saveCreateGenericError() async {
+        struct GenericError: Error {}
+        let repo = MockVisitRepository()
+        repo.createResult = .failure(GenericError())
+
+        let vm = VisitEditViewModel(mode: .create, repository: repo)
+        await vm.save()
+
+        guard case .failed(let error) = vm.saveState, case .unexpected = error else {
+            Issue.record("Expected .failed(.unexpected), got \(vm.saveState)")
+            return
+        }
+    }
+
+    @Test("save() in edit mode with network failure sets saveState to .failed(.network)")
+    func saveEditNetworkFailure() async {
+        let repo = MockVisitRepository()
+        repo.updateResult = .failure(APIError.network)
+
+        let existing = MockVisitRepository.makeTestVisit(id: 3)
+        let vm = VisitEditViewModel(mode: .edit(existing), repository: repo)
+        await vm.save()
+
+        #expect(vm.saveState == .failed(.network))
+    }
 }

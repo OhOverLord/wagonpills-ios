@@ -22,6 +22,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FD005FA12FAA3FD300786C8E /* Wagonpills.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = file; path = Wagonpills.xctestplan; sourceTree = "<group>"; };
 		FD14859E2FA4F40600EE493E /* WagonpillsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WagonpillsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FD9404212F9E0675001CF01D /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		FD9404222F9E0675001CF01D /* Debug.local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Debug.local.xcconfig.example; sourceTree = "<group>"; };
@@ -90,6 +91,7 @@
 		FDDE53512F9BFEA500EF0076 = {
 			isa = PBXGroup;
 			children = (
+				FD005FA12FAA3FD300786C8E /* Wagonpills.xctestplan */,
 				FD9404252F9E0675001CF01D /* Config */,
 				FDDE535C2F9BFEA500EF0076 /* Wagonpills */,
 				FD14859F2FA4F40600EE493E /* WagonpillsTests */,
