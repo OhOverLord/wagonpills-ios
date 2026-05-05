@@ -1,6 +1,7 @@
 #if DEBUG
 import Foundation
 
+@MainActor
 final class PreviewVisitRepository: VisitRepository {
     private var visits: [Visit]
     var error: APIError?
@@ -100,7 +101,7 @@ final class PreviewVisitRepository: VisitRepository {
         }
     }
 
-    static func makeSampleVisits() -> [Visit] {
+    nonisolated static func makeSampleVisits() -> [Visit] {
         let now = Date()
         return [
             Visit(

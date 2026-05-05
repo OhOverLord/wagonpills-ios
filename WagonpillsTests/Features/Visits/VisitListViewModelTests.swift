@@ -83,6 +83,31 @@ struct VisitListViewModelTests {
         #expect(vm.state == .empty)
     }
 
+    @Test("delete() when repository throws sets state to .failed")
+    func deleteFailure() async {
+        let repo = MockVisitRepository()
+        let visit = MockVisitRepository.makeTestVisit(id: 1)
+        repo.fetchAllResult = .success([visit])
+        repo.deleteResult = .failure(APIError.network)
+
+        let vm = VisitListViewModel(repository: repo)
+        await vm.load()
+        await vm.delete(visit)
+
+        #expect(vm.state == .failed(.network))
+    }
+
+    @Test("load() with generic Error sets state to .failed via APIError.from")
+    func loadGenericError() async {
+        let repo = MockVisitRepository()
+        repo.fetchAllResult = .failure(URLError(.notConnectedToInternet))
+
+        let vm = VisitListViewModel(repository: repo)
+        await vm.load()
+
+        #expect(vm.state == .failed(.network))
+    }
+
     @Test("visits sorted descending by visitAt after load")
     func sortedDescending() async {
         let repo = MockVisitRepository()

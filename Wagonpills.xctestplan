@@ -1,0 +1,39 @@
+{
+  "configurations" : [
+    {
+      "id" : "4506453F-738C-434F-BBDB-F472EF9289BA",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:Wagonpills.xcodeproj",
+          "identifier" : "FDDE53592F9BFEA500EF0076",
+          "name" : "Wagonpills"
+        }
+      ]
+    },
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Wagonpills.xcodeproj",
+      "identifier" : "FDDE53592F9BFEA500EF0076",
+      "name" : "Wagonpills"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Wagonpills.xcodeproj",
+        "identifier" : "FD14859D2FA4F40600EE493E",
+        "name" : "WagonpillsTests"
+      }
+    }
+  ],
+  "version" : 1
+}
