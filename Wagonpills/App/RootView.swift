@@ -8,6 +8,7 @@ struct RootView: View {
     let intakeLogRepository: any IntakeLogRepository
     let catalogRepository: any CatalogRepository
     let visitRepository: any VisitRepository
+    let prescriptionRepository: any PrescriptionRepository
 
     var body: some View {
         switch authState.status {
@@ -23,7 +24,8 @@ struct RootView: View {
                 reminderRepository: reminderRepository,
                 intakeLogRepository: intakeLogRepository,
                 catalogRepository: catalogRepository,
-                visitRepository: visitRepository
+                visitRepository: visitRepository,
+                prescriptionRepository: prescriptionRepository
             )
         }
     }
@@ -36,7 +38,8 @@ struct RootView: View {
         reminderRepository: PreviewReminderRepository(),
         intakeLogRepository: PreviewIntakeLogRepository(),
         catalogRepository: PreviewCatalogRepository(),
-        visitRepository: PreviewVisitRepository()
+        visitRepository: PreviewVisitRepository(),
+        prescriptionRepository: PreviewPrescriptionRepository()
     )
     .environment(AuthState.previewSignedOut())
 }
@@ -48,7 +51,8 @@ struct RootView: View {
         reminderRepository: PreviewReminderRepository(),
         intakeLogRepository: PreviewIntakeLogRepository(),
         catalogRepository: PreviewCatalogRepository(),
-        visitRepository: PreviewVisitRepository()
+        visitRepository: PreviewVisitRepository(),
+        prescriptionRepository: PreviewPrescriptionRepository()
     )
     .environment(AuthState.preview(signedIn: "user@example.com"))
 }
