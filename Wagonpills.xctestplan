@@ -27,7 +27,7 @@
   },
   "testTargets" : [
     {
-      "parallelizable" : true,
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:Wagonpills.xcodeproj",
         "identifier" : "FD14859D2FA4F40600EE493E",
