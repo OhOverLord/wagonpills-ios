@@ -3,10 +3,21 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(AuthState.self) private var authState
     let authRepository: any AuthRepository
+    let prescriptionRepository: any PrescriptionRepository
+    let visitRepository: any VisitRepository
 
     var body: some View {
         NavigationStack {
             List {
+                Section("Records") {
+                    NavigationLink("Prescriptions") {
+                        PrescriptionListView(viewModel: PrescriptionListViewModel(
+                            repository: prescriptionRepository,
+                            visitRepository: visitRepository
+                        ))
+                    }
+                }
+
                 Section("Account") {
                     if case .signedIn(let email) = authState.status {
                         LabeledContent("Signed in as", value: email)
@@ -38,11 +49,19 @@ struct SettingsView: View {
 }
 
 #Preview("Signed in") {
-    SettingsView(authRepository: PreviewAuthRepository())
-        .environment(AuthState.preview(signedIn: "user@example.com"))
+    SettingsView(
+        authRepository: PreviewAuthRepository(),
+        prescriptionRepository: PreviewPrescriptionRepository(),
+        visitRepository: PreviewVisitRepository()
+    )
+    .environment(AuthState.preview(signedIn: "user@example.com"))
 }
 
 #Preview("Signed out") {
-    SettingsView(authRepository: PreviewAuthRepository())
-        .environment(AuthState.previewSignedOut())
+    SettingsView(
+        authRepository: PreviewAuthRepository(),
+        prescriptionRepository: PreviewPrescriptionRepository(),
+        visitRepository: PreviewVisitRepository()
+    )
+    .environment(AuthState.previewSignedOut())
 }
