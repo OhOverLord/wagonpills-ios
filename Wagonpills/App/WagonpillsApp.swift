@@ -13,7 +13,8 @@ struct WagonpillsApp: App {
                 intakeLogRepository: deps.intakeLogRepository,
                 catalogRepository: deps.catalogRepository,
                 visitRepository: deps.visitRepository,
-                prescriptionRepository: deps.prescriptionRepository
+                prescriptionRepository: deps.prescriptionRepository,
+                calendarRepository: deps.calendarRepository
             )
             .environment(deps.authState)
             .environment(\.notificationRescheduler, deps.notificationRescheduler)

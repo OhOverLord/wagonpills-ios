@@ -4,8 +4,16 @@ struct VisitEditView: View {
     @State private var vm: VisitEditViewModel
     @Environment(\.dismiss) private var dismiss
 
-    init(mode: VisitEditViewModel.Mode, repository: any VisitRepository) {
-        _vm = State(wrappedValue: VisitEditViewModel(mode: mode, repository: repository))
+    init(
+        mode: VisitEditViewModel.Mode,
+        repository: any VisitRepository,
+        calendarRepository: (any CalendarRepository)? = nil
+    ) {
+        _vm = State(wrappedValue: VisitEditViewModel(
+            mode: mode,
+            repository: repository,
+            calendarRepository: calendarRepository
+        ))
     }
 
     var body: some View {
