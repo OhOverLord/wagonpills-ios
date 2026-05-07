@@ -27,10 +27,12 @@ final class VisitEditViewModel {
 
     let mode: Mode
     private let repository: any VisitRepository
+    private let calendarRepository: (any CalendarRepository)?
 
-    init(mode: Mode, repository: any VisitRepository) {
+    init(mode: Mode, repository: any VisitRepository, calendarRepository: (any CalendarRepository)? = nil) {
         self.mode = mode
         self.repository = repository
+        self.calendarRepository = calendarRepository
 
         if case .edit(let visit) = mode {
             doctorName = visit.doctorName ?? ""
@@ -55,7 +57,21 @@ final class VisitEditViewModel {
                     diagnosis: diagnosis.nilIfEmpty,
                     recommendations: recommendations.nilIfEmpty
                 )
-                _ = try await repository.create(request)
+                let visit = try await repository.create(request)
+                if let calendarRepo = calendarRepository {
+                    let eventTitle = doctorName.nilIfEmpty ?? String(localized: "Doctor Visit")
+                    let calendarRequest = CalendarEventCreateRequest(
+                        type: .doctorVisit,
+                        title: eventTitle,
+                        description: nil,
+                        location: location.nilIfEmpty,
+                        startsAt: visitAt,
+                        endsAt: nil,
+                        timezone: nil,
+                        doctorVisitId: visit.id
+                    )
+                    _ = try? await calendarRepo.create(calendarRequest)
+                }
             case .edit(let visit):
                 let request = VisitUpdateRequest(
                     doctorName: doctorName.nilIfEmpty,

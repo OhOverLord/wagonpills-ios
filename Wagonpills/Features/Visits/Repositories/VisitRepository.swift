@@ -191,6 +191,9 @@ final class LiveVisitRepository: VisitRepository {
             switch output {
             case .ok:
                 cache.remove(forKey: Self.listCacheKey)
+            case .undocumented(204, _):
+                // Backend returns 204 No Content instead of 200 — treat as success
+                cache.remove(forKey: Self.listCacheKey)
             case .undocumented(let status, _):
                 throw APIError.server(status: status)
             }

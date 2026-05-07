@@ -6,8 +6,11 @@ struct VisitListView: View {
     @State private var visitToDelete: Visit?
     @State private var showDeleteAlert = false
 
-    init(viewModel: VisitListViewModel) {
+    private let calendarRepository: (any CalendarRepository)?
+
+    init(viewModel: VisitListViewModel, calendarRepository: (any CalendarRepository)? = nil) {
         _vm = State(wrappedValue: viewModel)
+        self.calendarRepository = calendarRepository
     }
 
     var body: some View {
@@ -26,7 +29,7 @@ struct VisitListView: View {
                 .sheet(isPresented: $showingCreateVisit, onDismiss: {
                     Task { await vm.refresh() }
                 }, content: {
-                    VisitEditView(mode: .create, repository: vm.repository)
+                    VisitEditView(mode: .create, repository: vm.repository, calendarRepository: calendarRepository)
                 })
                 .alert("Delete Visit?", isPresented: $showDeleteAlert, presenting: visitToDelete) { visit in
                     Button("Delete", role: .destructive) {

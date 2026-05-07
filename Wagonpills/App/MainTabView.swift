@@ -8,6 +8,7 @@ struct MainTabView: View {
     let catalogRepository: any CatalogRepository
     let visitRepository: any VisitRepository
     let prescriptionRepository: any PrescriptionRepository
+    let calendarRepository: any CalendarRepository
 
     @Environment(\.notificationRescheduler) private var notificationRescheduler
 
@@ -29,11 +30,17 @@ struct MainTabView: View {
             )
             .tabItem { Label("Medications", systemImage: "pills") }
 
-            VisitListView(viewModel: VisitListViewModel(repository: visitRepository))
-                .tabItem { Label("Visits", systemImage: "stethoscope") }
+            VisitListView(
+                viewModel: VisitListViewModel(repository: visitRepository),
+                calendarRepository: calendarRepository
+            )
+            .tabItem { Label("Visits", systemImage: "stethoscope") }
 
-            CalendarView()
-                .tabItem { Label("Calendar", systemImage: "calendar") }
+            CalendarView(
+                viewModel: CalendarViewModel(repository: calendarRepository, visitRepository: visitRepository),
+                scheduler: LiveNotificationScheduler()
+            )
+            .tabItem { Label("Calendar", systemImage: "calendar") }
 
             SettingsView(
                 authRepository: authRepository,
@@ -59,7 +66,8 @@ struct MainTabView: View {
         intakeLogRepository: PreviewIntakeLogRepository(),
         catalogRepository: PreviewCatalogRepository(),
         visitRepository: PreviewVisitRepository(),
-        prescriptionRepository: PreviewPrescriptionRepository()
+        prescriptionRepository: PreviewPrescriptionRepository(),
+        calendarRepository: PreviewCalendarRepository()
     )
     .environment(AuthState.preview(signedIn: "user@example.com"))
 }
