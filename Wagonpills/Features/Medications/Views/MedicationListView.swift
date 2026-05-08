@@ -3,6 +3,8 @@ import SwiftUI
 struct MedicationListView: View {
     @State private var vm: MedicationListViewModel
     @State private var showCreateSheet = false
+    @State private var medicationToDelete: Medication?
+    @State private var showDeleteAlert = false
 
     let reminderRepository: any ReminderRepository
     let intakeLogRepository: any IntakeLogRepository
@@ -31,6 +33,23 @@ struct MedicationListView: View {
                 .task { await vm.load() }
                 .onChange(of: vm.showActiveOnly) { Task { await vm.load() } }
                 .refreshable { await vm.refresh() }
+                .alert("Delete Medication?", isPresented: $showDeleteAlert, presenting: medicationToDelete) { medication in
+                    Button("Delete", role: .destructive) {
+                        Task { await vm.delete(medication) }
+                    }
+                    Button("Cancel", role: .cancel) {}
+                } message: { medication in
+                    Text("Permanently delete \"\(medication.name)\"? This cannot be undone.")
+                }
+                .alert(
+                    "Could Not Delete Medication",
+                    isPresented: Binding(get: { vm.deleteError != nil }, set: { if !$0 { vm.clearDeleteError() } }),
+                    presenting: vm.deleteError
+                ) { _ in
+                    Button("OK", role: .cancel) { vm.clearDeleteError() }
+                } message: { error in
+                    Text(error.localizedDescription)
+                }
                 .sheet(
                     isPresented: $showCreateSheet,
                     onDismiss: { Task { await vm.load() } },
@@ -58,6 +77,14 @@ struct MedicationListView: View {
         List(medications) { medication in
             NavigationLink(value: medication) {
                 MedicationRow(medication: medication)
+            }
+            .swipeActions(edge: .trailing) {
+                Button(role: .destructive) {
+                    medicationToDelete = medication
+                    showDeleteAlert = true
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
             }
         }
         .navigationDestination(for: Medication.self) { medication in

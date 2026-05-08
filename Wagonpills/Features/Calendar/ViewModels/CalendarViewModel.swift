@@ -14,6 +14,7 @@ final class CalendarViewModel {
     private(set) var state: State = .idle
     var selectedDate: Date?
     var selectedMonth: Date
+    private(set) var deleteError: APIError?
 
     let repository: any CalendarRepository
     let visitRepository: (any VisitRepository)?
@@ -45,17 +46,22 @@ final class CalendarViewModel {
     }
 
     func delete(_ event: CalendarEvent) async {
+        deleteError = nil
         do {
             try await repository.delete(id: event.id)
             if case .loaded(var events) = state {
                 events.removeAll { $0.id == event.id }
-                state = events.isEmpty ? .loaded([]) : .loaded(events)
+                state = .loaded(events)
             }
         } catch let error as APIError {
-            state = .failed(error)
+            deleteError = error
         } catch {
-            state = .failed(APIError.from(error))
+            deleteError = APIError.from(error)
         }
+    }
+
+    func clearDeleteError() {
+        deleteError = nil
     }
 
     func previousMonth() {

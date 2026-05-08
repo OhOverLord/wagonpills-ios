@@ -14,6 +14,7 @@ final class MedicationListViewModel {
 
     private(set) var state: State = .idle
     var showActiveOnly: Bool = false
+    private(set) var deleteError: APIError?
 
     let repository: any MedicationRepository
 
@@ -30,6 +31,25 @@ final class MedicationListViewModel {
 
     func refresh() async {
         await fetch()
+    }
+
+    func delete(_ medication: Medication) async {
+        deleteError = nil
+        do {
+            try await repository.delete(id: medication.id)
+            if case .loaded(var medications) = state {
+                medications.removeAll { $0.id == medication.id }
+                state = medications.isEmpty ? .empty : .loaded(medications)
+            }
+        } catch let error as APIError {
+            deleteError = error
+        } catch {
+            deleteError = APIError.from(error)
+        }
+    }
+
+    func clearDeleteError() {
+        deleteError = nil
     }
 
     private func fetch() async {
