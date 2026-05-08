@@ -77,7 +77,7 @@ struct CalendarViewModelTests {
         #expect(repo.deleteCallCount == 1)
     }
 
-    @Test("delete failure surfaces error")
+    @Test("delete failure keeps loaded state and sets deleteError")
     func deleteFailure() async {
         let event = MockCalendarRepository.makeTestEvent(id: 1)
         let (vm, repo) = makeVM(events: [event])
@@ -85,7 +85,8 @@ struct CalendarViewModelTests {
         await vm.load()
 
         await vm.delete(event)
-        #expect(vm.state == .failed(.network))
+        #expect(vm.state == .loaded([event]))
+        #expect(vm.deleteError == .network)
     }
 
     @Test("previousMonth navigates back one month")

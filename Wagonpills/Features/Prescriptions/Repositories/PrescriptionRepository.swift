@@ -231,6 +231,8 @@ final class LivePrescriptionRepository: PrescriptionRepository {
             switch output {
             case .ok:
                 cache.remove(forKey: Self.listCacheKey)
+            case .undocumented(204, _):
+                cache.remove(forKey: Self.listCacheKey)
             case .undocumented(let status, _):
                 throw APIError.server(status: status)
             }
@@ -316,6 +318,8 @@ final class LivePrescriptionRepository: PrescriptionRepository {
             )
             switch output {
             case .ok:
+                break
+            case .undocumented(204, _):
                 break
             case .undocumented(let status, _):
                 throw APIError.server(status: status)

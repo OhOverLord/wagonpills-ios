@@ -5,6 +5,19 @@ struct SettingsView: View {
     let authRepository: any AuthRepository
     let prescriptionRepository: any PrescriptionRepository
     let visitRepository: any VisitRepository
+    @StateObject private var vm: SettingsViewModel
+
+    init(
+        authRepository: any AuthRepository,
+        prescriptionRepository: any PrescriptionRepository,
+        visitRepository: any VisitRepository,
+        regionRepository: any RegionRepository
+    ) {
+        self.authRepository = authRepository
+        self.prescriptionRepository = prescriptionRepository
+        self.visitRepository = visitRepository
+        self._vm = StateObject(wrappedValue: SettingsViewModel(regionRepository: regionRepository))
+    }
 
     var body: some View {
         NavigationStack {
@@ -16,6 +29,10 @@ struct SettingsView: View {
                             visitRepository: visitRepository
                         ))
                     }
+                }
+
+                Section("Preferences") {
+                    regionRow
                 }
 
                 Section("Account") {
@@ -33,6 +50,32 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("More")
+            .task { await vm.loadRegions() }
+        }
+    }
+
+    @ViewBuilder
+    private var regionRow: some View {
+        switch vm.regionState {
+        case .idle, .loading:
+            HStack {
+                Text("Region")
+                Spacer()
+                ProgressView()
+            }
+        case .loaded(let regions):
+            Picker("Region", selection: $vm.selectedRegionCode) {
+                ForEach(regions) { region in
+                    Text(region.name).tag(region.code)
+                }
+            }
+        case .failed:
+            VStack(alignment: .leading, spacing: 2) {
+                LabeledContent("Region", value: vm.selectedRegionCode)
+                Text("Could not load regions")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 
@@ -52,7 +95,8 @@ struct SettingsView: View {
     SettingsView(
         authRepository: PreviewAuthRepository(),
         prescriptionRepository: PreviewPrescriptionRepository(),
-        visitRepository: PreviewVisitRepository()
+        visitRepository: PreviewVisitRepository(),
+        regionRepository: PreviewRegionRepository()
     )
     .environment(AuthState.preview(signedIn: "user@example.com"))
 }
@@ -61,7 +105,8 @@ struct SettingsView: View {
     SettingsView(
         authRepository: PreviewAuthRepository(),
         prescriptionRepository: PreviewPrescriptionRepository(),
-        visitRepository: PreviewVisitRepository()
+        visitRepository: PreviewVisitRepository(),
+        regionRepository: PreviewRegionRepository()
     )
     .environment(AuthState.previewSignedOut())
 }

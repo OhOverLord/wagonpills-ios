@@ -150,6 +150,8 @@ final class LiveCalendarRepository: CalendarRepository {
         switch output {
         case .ok:
             break
+        case .undocumented(204, _):
+            break
         case .undocumented(let status, _):
             if status == 404 { throw APIError.notFound }
             throw APIError.server(status: status)
@@ -185,6 +187,8 @@ final class LiveCalendarRepository: CalendarRepository {
         let output = try await apiClient.deleteEventReminder(eventId: eventId, reminderId: reminderId)
         switch output {
         case .ok:
+            break
+        case .undocumented(204, _):
             break
         case .undocumented(let status, _):
             if status == 404 { throw APIError.notFound }

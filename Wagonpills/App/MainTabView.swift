@@ -9,6 +9,7 @@ struct MainTabView: View {
     let visitRepository: any VisitRepository
     let prescriptionRepository: any PrescriptionRepository
     let calendarRepository: any CalendarRepository
+    let regionRepository: any RegionRepository
 
     @Environment(\.notificationRescheduler) private var notificationRescheduler
 
@@ -45,7 +46,8 @@ struct MainTabView: View {
             SettingsView(
                 authRepository: authRepository,
                 prescriptionRepository: prescriptionRepository,
-                visitRepository: visitRepository
+                visitRepository: visitRepository,
+                regionRepository: regionRepository
             )
                 .tabItem { Label("More", systemImage: "ellipsis") }
         }
@@ -67,7 +69,8 @@ struct MainTabView: View {
         catalogRepository: PreviewCatalogRepository(),
         visitRepository: PreviewVisitRepository(),
         prescriptionRepository: PreviewPrescriptionRepository(),
-        calendarRepository: PreviewCalendarRepository()
+        calendarRepository: PreviewCalendarRepository(),
+        regionRepository: PreviewRegionRepository()
     )
     .environment(AuthState.preview(signedIn: "user@example.com"))
 }

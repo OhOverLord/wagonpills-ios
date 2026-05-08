@@ -55,6 +55,15 @@ struct CalendarView: View {
             } message: { event in
                 Text("Delete \"\(event.title)\"?")
             }
+            .alert(
+                "Could Not Delete Event",
+                isPresented: Binding(get: { vm.deleteError != nil }, set: { if !$0 { vm.clearDeleteError() } }),
+                presenting: vm.deleteError
+            ) { _ in
+                Button("OK", role: .cancel) { vm.clearDeleteError() }
+            } message: { error in
+                Text(error.localizedDescription)
+            }
             .task { await vm.load() }
         }
     }

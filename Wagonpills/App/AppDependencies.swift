@@ -12,6 +12,7 @@ final class AppDependencies {
     let visitRepository: any VisitRepository
     let prescriptionRepository: any PrescriptionRepository
     let calendarRepository: any CalendarRepository
+    let regionRepository: any RegionRepository
     let notificationRescheduler: any NotificationRescheduler
 
     init() {
@@ -30,6 +31,7 @@ final class AppDependencies {
         self.visitRepository = LiveVisitRepository(apiClient: apiClient, cache: cache)
         self.prescriptionRepository = LivePrescriptionRepository(apiClient: apiClient, cache: cache)
         self.calendarRepository = LiveCalendarRepository(apiClient: apiClient)
+        self.regionRepository = LiveRegionRepository(apiClient: apiClient)
         self.notificationRescheduler = LiveNotificationRescheduler(
             reminderRepository: reminderRepo,
             medicationRepository: medRepo,
