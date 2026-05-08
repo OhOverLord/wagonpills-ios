@@ -1,30 +1,11 @@
 # WagonPills
 
-[![CI](https://github.com/OhOverLord/Wagonpills/actions/workflows/ci.yml/badge.svg)](https://github.com/OhOverLord/Wagonpills/actions/workflows/ci.yml)
+[![CI](https://github.com/OhOverLord/wagonpills-ios/actions/workflows/ci.yml/badge.svg)](https://github.com/OhOverLord/Wagonpills/actions/workflows/ci.yml)
 ![Platform](https://img.shields.io/badge/platform-iOS%2017%2B-blue?logo=apple)
 ![Swift](https://img.shields.io/badge/Swift-5-orange?logo=swift)
 ![Xcode](https://img.shields.io/badge/Xcode-16.4-blue?logo=xcode)
 
-iOS client for a personal medication management system. Bachelor thesis project at **FIT CTU Prague** (2026).
-
----
-
-## Features
-
-| # | Feature | Status |
-|---|---------|--------|
-| F1 | User registration & JWT authentication | ✅ |
-| F2 | Medication record management (CRUD) | ✅ |
-| F3 | Medication schedule & local reminders | ✅ |
-| F4 | Intake confirmation logging | ✅ |
-| F5 | Medication history overview | ✅ |
-| F6 | Doctor visit management (CRUD) | ✅ |
-| F7 | Doctor visit attachment support | ✅ |
-| F8 | Prescription management | ✅ |
-| F9 | Medication change tracking | ✅ |
-| F10 | Medication stock tracking | ✅ |
-| F11 | Calendar event management | ✅ |
-| F12 | Medication catalogue integration | 🔧 |
+iOS client for a personal medication management system.
 
 ---
 
@@ -98,15 +79,9 @@ The app targets a Spring Boot REST API. Run it locally on `localhost:8080` (the 
 
 Every push and pull request to `main` runs two jobs:
 
-| Job | What it checks |
-|-----|---------------|
-| **SwiftLint** | Code style — fails on any warning (`--strict`) |
+| Job              | What it checks                                           |
+| ---------------- | -------------------------------------------------------- |
+| **SwiftLint**    | Code style — fails on any warning (`--strict`)           |
 | **Build & Test** | Full `xcodebuild test` on iPhone 16 / iOS 18.5 simulator |
 
 Test results are uploaded as artifacts and retained for 7 days.
-
----
-
-## License
-
-Academic project. All rights reserved.
