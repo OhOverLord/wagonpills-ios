@@ -125,9 +125,9 @@ struct IntakeHistoryView: View {
             statusPickerSection
             Section {
                 ContentUnavailableView(
-                    "No Records",
-                    systemImage: "list.bullet.clipboard",
-                    description: Text("No intake logs found for the selected period.")
+                    "No intake records",
+                    systemImage: "clock.arrow.circlepath",
+                    description: Text("Logged intakes will appear here.")
                 )
                 .listRowBackground(Color.clear)
             }

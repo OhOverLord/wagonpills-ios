@@ -1,6 +1,6 @@
 # WagonPills
 
-[![CI](https://github.com/OhOverLord/wagonpills-ios/actions/workflows/ci.yml/badge.svg)](https://github.com/OhOverLord/Wagonpills/actions/workflows/ci.yml)
+[![CI](https://github.com/OhOverLord/wagonpills-ios/actions/workflows/ci.yml/badge.svg)](https://github.com/OhOverLord/wagonpills-ios/actions/workflows/ci.yml)
 ![Platform](https://img.shields.io/badge/platform-iOS%2017%2B-blue?logo=apple)
 ![Swift](https://img.shields.io/badge/Swift-5-orange?logo=swift)
 ![Xcode](https://img.shields.io/badge/Xcode-16.4-blue?logo=xcode)

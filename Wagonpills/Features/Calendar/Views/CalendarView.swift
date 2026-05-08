@@ -31,6 +31,7 @@ struct CalendarView: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .accessibilityLabel("Add Event")
                 }
             }
             .sheet(
@@ -77,6 +78,7 @@ struct CalendarView: View {
                     .font(.title3)
                     .padding(8)
             }
+            .accessibilityLabel("Previous month")
             Spacer()
             Text(vm.selectedMonth, format: .dateTime.month(.wide).year())
                 .font(.title3.bold())
@@ -86,6 +88,7 @@ struct CalendarView: View {
                     .font(.title3)
                     .padding(8)
             }
+            .accessibilityLabel("Next month")
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
@@ -142,13 +145,13 @@ struct CalendarView: View {
 
     @ViewBuilder
     private var selectedDayEvents: some View {
-        if let selectedDate = vm.selectedDate {
+        if vm.selectedDate != nil {
             let dayEvents = vm.eventsForSelectedDate
             if dayEvents.isEmpty {
                 ContentUnavailableView(
-                    "No Events",
-                    systemImage: "calendar.badge.exclamationmark",
-                    description: Text(selectedDate, format: .dateTime.day().month(.wide))
+                    "No events",
+                    systemImage: "calendar.badge.minus",
+                    description: Text("No events on this day.")
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {

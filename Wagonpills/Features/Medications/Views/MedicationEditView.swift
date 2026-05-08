@@ -64,7 +64,8 @@ struct MedicationEditView: View {
 
     private var basicInfoSection: some View {
         Section("Basic Info") {
-            TextField("Medication name", text: $vm.name)
+            TextField("Medication name *", text: $vm.name)
+                .autocorrectionDisabled()
             TextField("e.g. 500 mg", text: $vm.dosageText)
                 .autocorrectionDisabled()
             if case .create = vm.mode {

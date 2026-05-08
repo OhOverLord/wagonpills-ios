@@ -52,6 +52,7 @@ struct StockView: View {
                     Label("Low stock", systemImage: "exclamationmark.triangle.fill")
                         .foregroundStyle(.yellow)
                         .font(.subheadline)
+                        .accessibilityLabel("Low stock warning")
                 }
             }
             .padding(.vertical, 4)

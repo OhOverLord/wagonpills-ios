@@ -32,6 +32,7 @@ struct ReminderListView: View {
                 Button { showCreateSheet = true } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel("Add Reminder")
             }
         }
         .task { await vm.load() }
@@ -100,17 +101,11 @@ struct ReminderListView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "bell.slash")
-                .font(.system(size: 48))
-                .foregroundStyle(.secondary)
-            Text("No reminder rules yet")
-                .font(.headline)
-                .foregroundStyle(.secondary)
-            Button("Add Rule") { showCreateSheet = true }
-                .buttonStyle(.bordered)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        ContentUnavailableView(
+            "No reminders",
+            systemImage: "bell.slash",
+            description: Text("Add a reminder to receive intake alerts.")
+        )
     }
 
     private func errorView(_ error: APIError) -> some View {

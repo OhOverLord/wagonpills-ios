@@ -169,6 +169,7 @@ struct MedicationDetailView: View {
                         Spacer()
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.yellow)
+                            .accessibilityLabel("Low stock warning")
                     }
                 }
             } else {

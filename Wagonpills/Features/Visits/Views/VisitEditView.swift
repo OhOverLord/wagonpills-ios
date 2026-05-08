@@ -21,11 +21,14 @@ struct VisitEditView: View {
             Form {
                 Section("Doctor") {
                     TextField("Doctor name", text: $vm.doctorName)
+                        .autocorrectionDisabled()
                     TextField("Specialty", text: $vm.specialty)
+                        .autocorrectionDisabled()
                 }
                 Section("Visit") {
                     DatePicker("Date & Time", selection: $vm.visitAt, displayedComponents: [.date, .hourAndMinute])
                     TextField("Location", text: $vm.location)
+                        .autocorrectionDisabled()
                 }
                 Section("Clinical") {
                     TextField("Diagnosis", text: $vm.diagnosis, axis: .vertical)

@@ -32,8 +32,6 @@ struct RegisterView: View {
                 }
             }
 
-            // TODO(F12): Replace with a catalogue-backed region picker once
-            // the medication catalogue feature is implemented.
             Section(header: Text("Region"), footer: Text("Used to pre-fill the medication catalogue.")) {
                 TextField("Region code", text: $vm.regionCode)
                     .autocorrectionDisabled()

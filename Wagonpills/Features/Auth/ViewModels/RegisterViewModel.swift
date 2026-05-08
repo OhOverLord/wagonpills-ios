@@ -12,7 +12,7 @@ final class RegisterViewModel {
 
     var email = ""
     var password = ""
-    var regionCode = "CZ" // TODO(F12): replace with catalogue region picker
+    var regionCode = "CZ"
 
     private(set) var state: State = .idle
 

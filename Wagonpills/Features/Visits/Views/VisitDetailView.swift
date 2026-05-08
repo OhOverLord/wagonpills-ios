@@ -169,7 +169,7 @@ struct VisitDetailView: View {
                 attachmentToDelete = attachment
                 showDeleteAttachmentAlert = true
             } label: {
-                Label("Delete", systemImage: "trash")
+                Label("Delete attachment", systemImage: "trash")
             }
         }
     }

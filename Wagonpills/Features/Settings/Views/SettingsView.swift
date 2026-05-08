@@ -5,7 +5,8 @@ struct SettingsView: View {
     let authRepository: any AuthRepository
     let prescriptionRepository: any PrescriptionRepository
     let visitRepository: any VisitRepository
-    @StateObject private var vm: SettingsViewModel
+    @State private var vm: SettingsViewModel
+    @State private var showSignOutAlert = false
 
     init(
         authRepository: any AuthRepository,
@@ -16,7 +17,7 @@ struct SettingsView: View {
         self.authRepository = authRepository
         self.prescriptionRepository = prescriptionRepository
         self.visitRepository = visitRepository
-        self._vm = StateObject(wrappedValue: SettingsViewModel(regionRepository: regionRepository))
+        self._vm = State(wrappedValue: SettingsViewModel(regionRepository: regionRepository))
     }
 
     var body: some View {
@@ -40,7 +41,7 @@ struct SettingsView: View {
                         LabeledContent("Signed in as", value: email)
                     }
                     Button("Sign Out", role: .destructive) {
-                        Task { await signOut() }
+                        showSignOutAlert = true
                     }
                 }
 
@@ -51,6 +52,14 @@ struct SettingsView: View {
             }
             .navigationTitle("More")
             .task { await vm.loadRegions() }
+            .alert("Sign Out?", isPresented: $showSignOutAlert) {
+                Button("Sign Out", role: .destructive) {
+                    Task { await signOut() }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("You will be signed out of your account.")
+            }
         }
     }
 
