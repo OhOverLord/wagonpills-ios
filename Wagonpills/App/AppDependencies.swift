@@ -1,3 +1,4 @@
+import Foundation
 import Observation
 
 @MainActor
@@ -27,7 +28,8 @@ final class AppDependencies {
         self.medicationRepository = medRepo
         self.reminderRepository = reminderRepo
         self.intakeLogRepository = LiveIntakeLogRepository(apiClient: apiClient, cache: cache)
-        self.catalogRepository = LiveCatalogRepository(apiClient: apiClient, cache: cache)
+        let preferredRegion = UserDefaults.standard.string(forKey: "preferredRegionCode") ?? "CZ"
+        self.catalogRepository = LiveCatalogRepository(apiClient: apiClient, cache: cache, defaultRegionCode: preferredRegion)
         self.visitRepository = LiveVisitRepository(apiClient: apiClient, cache: cache)
         self.prescriptionRepository = LivePrescriptionRepository(apiClient: apiClient, cache: cache)
         self.calendarRepository = LiveCalendarRepository(apiClient: apiClient)

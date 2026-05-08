@@ -1,6 +1,77 @@
 import Foundation
 import Observation
 
+// MARK: - Catalog suggestion controller
+
+@MainActor
+@Observable
+final class CatalogSuggestionController {
+    var suggestions: [CatalogItem] = []
+    var isSearching: Bool = false
+    var isVisible: Bool = false
+
+    private var task: Task<Void, Never>?
+    private var suppressNextSearch: Bool = false
+    private let repository: any CatalogRepository
+
+    init(repository: any CatalogRepository) {
+        self.repository = repository
+    }
+
+    func onNameChanged(_ text: String, regionCode: String) {
+        if suppressNextSearch {
+            suppressNextSearch = false
+            return
+        }
+        task?.cancel()
+        task = nil
+        guard text.count >= 2 else {
+            suggestions = []
+            isVisible = false
+            isSearching = false
+            return
+        }
+        isSearching = true
+        let currentText = text
+        task = Task { [weak self] in
+            guard let self else { return }
+            do {
+                try await Task.sleep(for: .milliseconds(300))
+                let results = try await repository.search(name: currentText, regionCode: regionCode)
+                self.suggestions = results
+                self.isSearching = false
+                self.isVisible = true
+            } catch {
+                if !Task.isCancelled {
+                    self.suggestions = []
+                    self.isSearching = false
+                    self.isVisible = false
+                }
+            }
+        }
+    }
+
+    func select(_ item: CatalogItem) -> CatalogItem {
+        task?.cancel()
+        task = nil
+        suggestions = []
+        isSearching = false
+        isVisible = false
+        suppressNextSearch = true
+        return item
+    }
+
+    func dismiss() {
+        task?.cancel()
+        task = nil
+        suggestions = []
+        isSearching = false
+        isVisible = false
+    }
+}
+
+// MARK: - ViewModel
+
 @MainActor
 @Observable
 final class MedicationEditViewModel {
@@ -16,7 +87,13 @@ final class MedicationEditViewModel {
         case failed(APIError)
     }
 
-    var name: String = ""
+    var name: String = "" {
+        didSet {
+            if case .create = mode {
+                suggestions.onNameChanged(name, regionCode: preferredRegionCode)
+            }
+        }
+    }
     var dosageText: String = ""
     var instructions: String = ""
     var startDate: Date = .now
@@ -34,11 +111,18 @@ final class MedicationEditViewModel {
     var deleteError: APIError?
 
     let mode: Mode
+    let suggestions: CatalogSuggestionController
+
     private let repository: any MedicationRepository
 
-    init(mode: Mode, repository: any MedicationRepository) {
+    private var preferredRegionCode: String {
+        UserDefaults.standard.string(forKey: "preferredRegionCode") ?? "CZ"
+    }
+
+    init(mode: Mode, repository: any MedicationRepository, catalogRepository: any CatalogRepository) {
         self.mode = mode
         self.repository = repository
+        self.suggestions = CatalogSuggestionController(repository: catalogRepository)
 
         if case .edit(let med) = mode {
             name = med.name
@@ -128,9 +212,7 @@ final class MedicationEditViewModel {
 extension MedicationEditViewModel {
     func prefillFromCatalog(_ item: CatalogItem) {
         name = item.name
-        if let strength = item.strength, dosageText.isEmpty {
-            dosageText = strength
-        }
+        dosageText = item.strength ?? ""
         catalogItemId = item.id
     }
 }

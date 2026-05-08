@@ -3,18 +3,14 @@ import SwiftUI
 struct MedicationEditView: View {
     @State private var vm: MedicationEditViewModel
     @State private var showDeleteConfirmation = false
-    @State private var showCatalogPicker = false
     @Environment(\.dismiss) private var dismiss
-
-    let catalogRepository: any CatalogRepository
 
     init(
         mode: MedicationEditViewModel.Mode,
         repository: any MedicationRepository,
         catalogRepository: any CatalogRepository
     ) {
-        _vm = State(wrappedValue: MedicationEditViewModel(mode: mode, repository: repository))
-        self.catalogRepository = catalogRepository
+        _vm = State(wrappedValue: MedicationEditViewModel(mode: mode, repository: repository, catalogRepository: catalogRepository))
     }
 
     var body: some View {
@@ -41,11 +37,6 @@ struct MedicationEditView: View {
             .onChange(of: vm.saveState) { _, new in
                 if new == .saved { dismiss() }
             }
-            .sheet(isPresented: $showCatalogPicker) {
-                CatalogPickerView(repository: catalogRepository) { item in
-                    vm.prefillFromCatalog(item)
-                }
-            }
             .alert(
                 "Delete Failed",
                 isPresented: Binding(
@@ -66,16 +57,30 @@ struct MedicationEditView: View {
         Section("Basic Info") {
             TextField("Medication name *", text: $vm.name)
                 .autocorrectionDisabled()
-            TextField("e.g. 500 mg", text: $vm.dosageText)
-                .autocorrectionDisabled()
-            if case .create = vm.mode {
-                Button {
-                    showCatalogPicker = true
-                } label: {
-                    Label("Search Catalogue", systemImage: "magnifyingglass")
+
+            if case .create = vm.mode, vm.suggestions.isVisible {
+                if vm.suggestions.isSearching {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                } else if vm.suggestions.suggestions.isEmpty {
+                    Text("No results in catalogue")
                         .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(vm.suggestions.suggestions) { item in
+                        Button {
+                            let selected = vm.suggestions.select(item)
+                            vm.prefillFromCatalog(selected)
+                        } label: {
+                            CatalogSuggestionRow(item: item)
+                        }
+                        .foregroundStyle(.primary)
+                    }
                 }
             }
+
+            TextField("e.g. 500 mg", text: $vm.dosageText)
+                .autocorrectionDisabled()
             if case .edit = vm.mode {
                 Toggle("Active", isOn: $vm.isActive)
             }
@@ -181,13 +186,39 @@ struct MedicationEditView: View {
     }
 }
 
+// MARK: - Suggestion row
+
+private struct CatalogSuggestionRow: View {
+    let item: CatalogItem
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 6) {
+                Text(item.name)
+                if let strength = item.strength {
+                    Text(strength)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            if let form = item.form {
+                Text(form)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+}
+
 // MARK: - Previews
 
 #Preview("Create") {
     MedicationEditView(
         mode: .create,
         repository: PreviewMedicationRepository(),
-        catalogRepository: PreviewCatalogRepository()
+        catalogRepository: PreviewCatalogRepository(items: [
+            CatalogItem(id: 1, name: "Aspirin", strength: "100 mg", form: "Tablet", regionCode: "CZ", aliases: []),
+            CatalogItem(id: 2, name: "Ibuprofen", strength: "400 mg", form: "Tablet", regionCode: "CZ", aliases: [])
+        ])
     )
 }
 

@@ -14,7 +14,7 @@ struct MedicationEditViewModelTests {
         let med = MockMedicationRepository.makeTestMedication(id: 42, name: "Aspirin")
         repo.createResult = .success(med)
 
-        let vm = MedicationEditViewModel(mode: .create, repository: repo)
+        let vm = MedicationEditViewModel(mode: .create, repository: repo, catalogRepository: MockCatalogRepository())
         vm.name = "Aspirin"
 
         await vm.save()
@@ -26,7 +26,7 @@ struct MedicationEditViewModelTests {
     @Test("save() with empty name sets saveState to .failed(.validation)")
     func saveEmptyNameFails() async {
         let repo = MockMedicationRepository()
-        let vm = MedicationEditViewModel(mode: .create, repository: repo)
+        let vm = MedicationEditViewModel(mode: .create, repository: repo, catalogRepository: MockCatalogRepository())
         vm.name = "   "
 
         await vm.save()
@@ -44,7 +44,7 @@ struct MedicationEditViewModelTests {
         let repo = MockMedicationRepository()
         repo.createResult = .failure(APIError.network)
 
-        let vm = MedicationEditViewModel(mode: .create, repository: repo)
+        let vm = MedicationEditViewModel(mode: .create, repository: repo, catalogRepository: MockCatalogRepository())
         vm.name = "Aspirin"
 
         await vm.save()
@@ -61,7 +61,7 @@ struct MedicationEditViewModelTests {
         let updated = MockMedicationRepository.makeTestMedication(id: 7, name: "New Name")
         repo.updateResult = .success(updated)
 
-        let vm = MedicationEditViewModel(mode: .edit(existing), repository: repo)
+        let vm = MedicationEditViewModel(mode: .edit(existing), repository: repo, catalogRepository: MockCatalogRepository())
         vm.name = "New Name"
 
         await vm.save()
@@ -78,7 +78,7 @@ struct MedicationEditViewModelTests {
         repo.deleteResult = .success(())
         let med = MockMedicationRepository.makeTestMedication(id: 5)
 
-        let vm = MedicationEditViewModel(mode: .edit(med), repository: repo)
+        let vm = MedicationEditViewModel(mode: .edit(med), repository: repo, catalogRepository: MockCatalogRepository())
 
         await vm.delete()
 
@@ -94,7 +94,7 @@ struct MedicationEditViewModelTests {
         repo.deleteResult = .failure(APIError.notFound)
         let med = MockMedicationRepository.makeTestMedication(id: 5)
 
-        let vm = MedicationEditViewModel(mode: .edit(med), repository: repo)
+        let vm = MedicationEditViewModel(mode: .edit(med), repository: repo, catalogRepository: MockCatalogRepository())
 
         await vm.delete()
 
@@ -115,7 +115,7 @@ struct MedicationEditViewModelTests {
             createdAt: Date(), updatedAt: Date()
         )
         let repo = MockMedicationRepository()
-        let vm = MedicationEditViewModel(mode: .edit(med), repository: repo)
+        let vm = MedicationEditViewModel(mode: .edit(med), repository: repo, catalogRepository: MockCatalogRepository())
 
         #expect(vm.name == "Metformin")
         #expect(vm.dosageText == "500 mg")
@@ -124,5 +124,58 @@ struct MedicationEditViewModelTests {
         #expect(vm.doseQuantity == "2.0")
         #expect(vm.lowStockThreshold == "5.0")
         #expect(vm.hasEndDate == false)
+    }
+
+    // MARK: - Catalog suggestions
+
+    @Test("typing 3 chars triggers catalog search and shows inline suggestions")
+    func suggestionsShowAfterTyping() async throws {
+        let item = MockCatalogRepository.makeTestItem(id: 1, name: "Aspirin")
+        let catalogRepo = MockCatalogRepository()
+        catalogRepo.searchResult = .success([item])
+        let vm = MedicationEditViewModel(mode: .create, repository: MockMedicationRepository(), catalogRepository: catalogRepo)
+
+        vm.name = "Asp"
+
+        try await Task.sleep(for: .milliseconds(350))
+
+        #expect(vm.suggestions.isVisible == true)
+        #expect(vm.suggestions.suggestions.count == 1)
+        #expect(vm.suggestions.suggestions.first?.name == "Aspirin")
+    }
+
+    @Test("selecting a suggestion pre-fills name and dosageText and hides suggestions")
+    func selectSuggestionPrefillsAndHides() async throws {
+        let item = MockCatalogRepository.makeTestItem(id: 1, name: "Aspirin")
+        let catalogRepo = MockCatalogRepository()
+        catalogRepo.searchResult = .success([item])
+        let vm = MedicationEditViewModel(mode: .create, repository: MockMedicationRepository(), catalogRepository: catalogRepo)
+
+        vm.name = "Asp"
+        try await Task.sleep(for: .milliseconds(350))
+
+        let selected = vm.suggestions.select(item)
+        vm.prefillFromCatalog(selected)
+
+        #expect(vm.name == "Aspirin")
+        #expect(vm.dosageText == "500 mg")
+        #expect(vm.suggestions.isVisible == false)
+    }
+
+    @Test("re-selecting from catalog overwrites previous dosage")
+    func reselectOverwritesDosage() async throws {
+        let first = MockCatalogRepository.makeTestItem(id: 1, name: "Aspirin")
+        let second = CatalogItem(id: 2, name: "Ibuprofen", strength: "200 mg", form: "tablet", regionCode: "CZ", aliases: [])
+        let catalogRepo = MockCatalogRepository()
+        catalogRepo.searchResult = .success([first])
+        let vm = MedicationEditViewModel(mode: .create, repository: MockMedicationRepository(), catalogRepository: catalogRepo)
+
+        vm.prefillFromCatalog(vm.suggestions.select(first))
+        #expect(vm.dosageText == "500 mg")
+
+        catalogRepo.searchResult = .success([second])
+        vm.prefillFromCatalog(vm.suggestions.select(second))
+        #expect(vm.name == "Ibuprofen")
+        #expect(vm.dosageText == "200 mg")
     }
 }
