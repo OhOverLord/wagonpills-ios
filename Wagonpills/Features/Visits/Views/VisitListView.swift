@@ -24,6 +24,7 @@ struct VisitListView: View {
                         } label: {
                             Image(systemName: "plus")
                         }
+                        .accessibilityLabel("Add Visit")
                     }
                 }
                 .sheet(isPresented: $showingCreateVisit, onDismiss: {

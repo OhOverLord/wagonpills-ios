@@ -57,15 +57,18 @@ struct CalendarEventEditView: View {
 
     private var detailsSection: some View {
         Section("Details") {
-            TextField("Title", text: $vm.title)
+            TextField("Title *", text: $vm.title)
+                .autocorrectionDisabled()
 
             if case .create = vm.mode, vm.type == .doctorVisit {
                 TextField("Doctor name (optional)", text: $vm.doctorName)
+                    .autocorrectionDisabled()
             }
 
             TextField("Description (optional)", text: $vm.description, axis: .vertical)
                 .lineLimit(3...6)
             TextField("Location (optional)", text: $vm.location)
+                .autocorrectionDisabled()
 
             if case .failed(let error) = vm.saveState {
                 Text(error.localizedDescription)

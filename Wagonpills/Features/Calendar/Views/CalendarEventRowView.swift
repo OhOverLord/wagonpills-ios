@@ -8,6 +8,7 @@ struct CalendarEventRowView: View {
             Image(systemName: event.type.systemImage)
                 .foregroundStyle(event.type.color)
                 .frame(width: 28)
+                .accessibilityLabel(Text(event.type.displayName))
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack {
@@ -43,6 +44,7 @@ struct CalendarEventRowView: View {
                 Image(systemName: "bell.fill")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
             }
         }
         .padding(.vertical, 4)

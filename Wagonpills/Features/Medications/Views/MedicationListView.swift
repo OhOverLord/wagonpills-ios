@@ -100,12 +100,11 @@ struct MedicationListView: View {
 
     private var emptyState: some View {
         VStack(spacing: 16) {
-            Image(systemName: "pills")
-                .font(.system(size: 48))
-                .foregroundStyle(.secondary)
-            Text("No medications yet")
-                .font(.headline)
-                .foregroundStyle(.secondary)
+            ContentUnavailableView(
+                "No Medications",
+                systemImage: "pills",
+                description: Text("Add your first medication to get started.")
+            )
             if vm.showActiveOnly {
                 Button("Show all medications") {
                     vm.showActiveOnly = false
@@ -113,7 +112,6 @@ struct MedicationListView: View {
                 .buttonStyle(.bordered)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func errorBanner(_ error: APIError) -> some View {
@@ -154,6 +152,7 @@ struct MedicationListView: View {
             } label: {
                 Image(systemName: "plus")
             }
+            .accessibilityLabel("Add Medication")
         }
     }
 }

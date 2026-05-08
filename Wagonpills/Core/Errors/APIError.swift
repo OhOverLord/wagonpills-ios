@@ -1,4 +1,5 @@
 import Foundation
+import OpenAPIRuntime
 
 enum APIError: Error, Equatable {
     case unauthorized
@@ -31,8 +32,8 @@ extension APIError: LocalizedError {
             return String(localized: "No internet connection. Please check your network.")
         case .decoding:
             return String(localized: "Unexpected response from server.")
-        case .unexpected(let detail):
-            return String(localized: "An unexpected error occurred: \(detail)")
+        case .unexpected:
+            return String(localized: "Something went wrong. Please try again.")
         }
     }
 }
@@ -45,21 +46,18 @@ extension APIError {
         if let apiError = error as? APIError {
             return apiError
         }
-        if let urlError = error as? URLError {
-            switch urlError.code {
-            case .notConnectedToInternet,
-                 .networkConnectionLost,
-                 .cannotConnectToHost,
-                 .cannotFindHost,
-                 .timedOut,
-                 .dnsLookupFailed:
-                return .network
-            default:
-                return .network
-            }
+        // OpenAPI runtime wraps the real error in ClientError — unwrap and reclassify.
+        if let clientError = error as? ClientError {
+            return from(clientError.underlyingError)
+        }
+        if error is URLError {
+            return .network
         }
         if error is DecodingError {
             return .decoding
+        }
+        if error is CancellationError {
+            return .network
         }
         return .unexpected(String(describing: error))
     }

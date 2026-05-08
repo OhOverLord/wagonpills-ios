@@ -162,7 +162,9 @@ private struct AddDraftItemSheet: View {
             Form {
                 Section("Medication") {
                     TextField("Name (required)", text: $medicationName)
+                        .autocorrectionDisabled()
                     TextField("Dosage (e.g. 500 mg)", text: $dosageText)
+                        .autocorrectionDisabled()
                 }
                 Section("Instructions") {
                     TextField("Instructions (optional)", text: $instructions, axis: .vertical)

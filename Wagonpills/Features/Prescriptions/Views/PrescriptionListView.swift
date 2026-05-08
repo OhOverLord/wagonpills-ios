@@ -21,6 +21,7 @@ struct PrescriptionListView: View {
                         } label: {
                             Image(systemName: "plus")
                         }
+                        .accessibilityLabel("Add Prescription")
                     }
                 }
                 .sheet(isPresented: $showingCreate, onDismiss: {
@@ -54,7 +55,7 @@ struct PrescriptionListView: View {
             ContentUnavailableView(
                 "No Prescriptions",
                 systemImage: "doc.text",
-                description: Text("Your prescription records will appear here.")
+                description: Text("Prescriptions from your visits will appear here.")
             )
         case .loaded(let prescriptions):
             List {

@@ -108,9 +108,9 @@ struct TodayView: View {
 
     private var emptyState: some View {
         ContentUnavailableView(
-            "Nothing scheduled today",
-            systemImage: "calendar.badge.clock",
-            description: Text("Add a medication with a reminder schedule to see your daily doses here.")
+            "All done for today",
+            systemImage: "checkmark.circle",
+            description: Text("No scheduled doses remain.")
         )
     }
 
