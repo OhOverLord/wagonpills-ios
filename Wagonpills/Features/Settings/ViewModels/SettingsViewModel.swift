@@ -1,8 +1,9 @@
-import Combine
 import Foundation
+import Observation
 
 @MainActor
-final class SettingsViewModel: ObservableObject {
+@Observable
+final class SettingsViewModel {
     enum RegionState: Equatable {
         case idle
         case loading
@@ -10,8 +11,8 @@ final class SettingsViewModel: ObservableObject {
         case failed(APIError)
     }
 
-    @Published private(set) var regionState: RegionState = .idle
-    @Published var selectedRegionCode: String {
+    private(set) var regionState: RegionState = .idle
+    var selectedRegionCode: String {
         didSet { UserDefaults.standard.set(selectedRegionCode, forKey: "preferredRegionCode") }
     }
 

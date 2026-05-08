@@ -82,7 +82,7 @@ private extension KeychainStore {
             kSecAttrService: service,
             kSecAttrAccount: account,
             kSecValueData: data,
-            kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+            kSecAttrAccessible: kSecAttrAccessibleWhenUnlocked,
             kSecAttrSynchronizable: false
         ]
         let addStatus = SecItemAdd(addAttributes as CFDictionary, nil)

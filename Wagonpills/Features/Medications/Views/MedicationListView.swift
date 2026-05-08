@@ -180,7 +180,7 @@ private struct MedicationRow: View {
             if isLowStock {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(.yellow)
-                    .accessibilityLabel(Text("Low stock"))
+                    .accessibilityLabel("Low stock warning")
             }
         }
     }
