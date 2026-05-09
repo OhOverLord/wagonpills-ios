@@ -10,7 +10,7 @@ final class MockIntakeLogClient: IntakeLogClient, @unchecked Sendable {
         APIError.unexpected("not configured")
     )
     var getResult: Result<Operations.GetFiltered.Output, Error> = .success(
-        .ok(.init(body: .any(HTTPBody(Data("[]".utf8)))))
+        .ok(.init(body: .any(HTTPBody(Data(#"{"content":[],"last":true}"#.utf8)))))
     )
 
     private(set) var createCallCount = 0
@@ -74,7 +74,10 @@ private extension IntakeLogRepositoryTests {
     static func makeOkListOutput(dtos: [Components.Schemas.IntakeLogResponse]) throws -> Operations.GetFiltered.Output {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
-        let data = try encoder.encode(dtos)
+        let contentData = try encoder.encode(dtos)
+        let contentJSON = String(data: contentData, encoding: .utf8) ?? "[]"
+        let pageJSON = #"{"content":\#(contentJSON),"last":true,"first":true,"totalPages":1,"totalElements":\#(dtos.count)}"#
+        let data = Data(pageJSON.utf8)
         return .ok(.init(body: .any(HTTPBody(data, length: .known(Int64(data.count)), iterationBehavior: .multiple))))
     }
 }
