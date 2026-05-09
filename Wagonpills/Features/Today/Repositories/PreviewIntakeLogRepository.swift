@@ -33,16 +33,18 @@ struct PreviewIntakeLogRepository: IntakeLogRepository {
         medicationId: Int64?,
         from: Date?,
         to: Date?,
-        status: IntakeStatus?
-    ) async throws -> [IntakeLog] {
+        status: IntakeStatus?,
+        page: Int
+    ) async throws -> IntakeLogPage {
         if let error { throw error }
-        return logs.filter { log in
+        let filtered = logs.filter { log in
             if let id = medicationId, log.medicationId != id { return false }
             if let from, log.scheduledTime < from { return false }
             if let to, log.scheduledTime >= to { return false }
             if let status, log.status != status { return false }
             return true
         }
+        return IntakeLogPage(logs: filtered, hasMore: false)
     }
     static func makeSampleLogs(medicationId: Int64 = 1) -> [IntakeLog] {
         let calendar = Calendar.current

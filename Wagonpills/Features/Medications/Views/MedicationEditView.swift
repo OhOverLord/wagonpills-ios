@@ -62,11 +62,7 @@ struct MedicationEditView: View {
                 if vm.suggestions.isSearching {
                     ProgressView()
                         .frame(maxWidth: .infinity)
-                } else if vm.suggestions.suggestions.isEmpty {
-                    Text("No results in catalogue")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                } else {
+                } else if !vm.suggestions.suggestions.isEmpty {
                     ForEach(vm.suggestions.suggestions) { item in
                         Button {
                             let selected = vm.suggestions.select(item)

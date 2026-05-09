@@ -30,12 +30,14 @@ final class MockIntakeLogRepository: IntakeLogRepository, @unchecked Sendable {
         medicationId: Int64?,
         from: Date?,
         to: Date?,
-        status: IntakeStatus?
-    ) async throws -> [IntakeLog] {
+        status: IntakeStatus?,
+        page: Int
+    ) async throws -> IntakeLogPage {
         fetchLogsCallCount += 1
         lastFetchMedicationId = medicationId
         lastFetchStatus = status
-        return try fetchLogsResult.get()
+        let logs = try fetchLogsResult.get()
+        return IntakeLogPage(logs: logs, hasMore: false)
     }
 
     static func makeLog(

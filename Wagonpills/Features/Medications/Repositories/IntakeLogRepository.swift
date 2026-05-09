@@ -15,8 +15,9 @@ protocol IntakeLogRepository: Sendable {
         medicationId: Int64?,
         from: Date?,
         to: Date?,
-        status: IntakeStatus?
-    ) async throws -> [IntakeLog]
+        status: IntakeStatus?,
+        page: Int
+    ) async throws -> IntakeLogPage
 }
 
 // MARK: - Narrow client protocol
@@ -30,7 +31,8 @@ protocol IntakeLogClient: Sendable {
         medicationId: Int64?,
         status: String?,
         from: Date?,
-        to: Date?
+        to: Date?,
+        page: Int
     ) async throws -> Operations.GetFiltered.Output
 }
 
@@ -45,7 +47,8 @@ extension APIClient: IntakeLogClient {
         medicationId: Int64?,
         status: String?,
         from: Date?,
-        to: Date?
+        to: Date?,
+        page: Int
     ) async throws -> Operations.GetFiltered.Output {
         let statusPayload = status.flatMap {
             Operations.GetFiltered.Input.Query.StatusPayload(rawValue: $0)
@@ -54,7 +57,8 @@ extension APIClient: IntakeLogClient {
             medicationId: medicationId,
             status: statusPayload,
             from: from,
-            to: to
+            to: to,
+            page: Int32(page)
         ))
     }
 }
@@ -113,31 +117,31 @@ final class LiveIntakeLogRepository: IntakeLogRepository {
         medicationId: Int64?,
         from: Date?,
         to: Date?,
-        status: IntakeStatus?
-    ) async throws -> [IntakeLog] {
-        // Only cache the unfiltered today-view query (used by TodayViewModel).
-        // History queries vary by date range and status — caching them risks
-        // serving stale results after a new intake is logged.
-        let isTodayQuery = medicationId == nil && status == nil && isTodayStart(from)
+        status: IntakeStatus?,
+        page: Int
+    ) async throws -> IntakeLogPage {
+        // Only cache page 0 of the unfiltered today-view query (used by TodayViewModel).
+        let isTodayQuery = page == 0 && medicationId == nil && status == nil && isTodayStart(from)
         let key = cacheKey(medicationId: medicationId, from: from)
 
         if isTodayQuery, let cached = cache.load([IntakeLog].self, forKey: key) {
-            return cached
+            return IntakeLogPage(logs: cached, hasMore: false)
         }
 
         let output = try await apiClient.getIntakeLogs(
             medicationId: medicationId,
             status: status?.rawValue,
             from: from,
-            to: to
+            to: to,
+            page: page
         )
 
         switch output {
         case .ok(let response):
             let data = try await Data(collecting: try response.body.any, upTo: 10_485_760)
-            let logs = try decodeLogList(from: data)
-            if isTodayQuery { cache.save(logs, forKey: key) }
-            return logs
+            let result = try decodeLogList(from: data)
+            if isTodayQuery { cache.save(result.logs, forKey: key) }
+            return result
         case .undocumented(let statusCode, _):
             if statusCode == 401 { throw APIError.unauthorized }
             throw APIError.server(status: statusCode)
@@ -170,14 +174,16 @@ private extension LiveIntakeLogRepository {
         return try IntakeLog.from(dto)
     }
 
-    func decodeLogList(from data: Data) throws -> [IntakeLog] {
-        let dtos: [Components.Schemas.IntakeLogResponse]
+    func decodeLogList(from data: Data) throws -> IntakeLogPage {
+        let page: Components.Schemas.PageIntakeLogResponse
         do {
-            dtos = try Self.decoder.decode([Components.Schemas.IntakeLogResponse].self, from: data)
+            page = try Self.decoder.decode(Components.Schemas.PageIntakeLogResponse.self, from: data)
         } catch {
             throw APIError.decoding
         }
-        return try dtos.map { try IntakeLog.from($0) }
+        let logs = try (page.content ?? []).map { try IntakeLog.from($0) }
+        let isLast = page.last ?? true
+        return IntakeLogPage(logs: logs, hasMore: !isLast)
     }
 
     static let decoder: JSONDecoder = {

@@ -10,7 +10,7 @@ final class MockIntakeLogClient: IntakeLogClient, @unchecked Sendable {
         APIError.unexpected("not configured")
     )
     var getResult: Result<Operations.GetFiltered.Output, Error> = .success(
-        .ok(.init(body: .any(HTTPBody(Data("[]".utf8)))))
+        .ok(.init(body: .any(HTTPBody(Data(#"{"content":[],"last":true}"#.utf8)))))
     )
 
     private(set) var createCallCount = 0
@@ -31,7 +31,8 @@ final class MockIntakeLogClient: IntakeLogClient, @unchecked Sendable {
         medicationId: Int64?,
         status: String?,
         from: Date?,
-        to: Date?
+        to: Date?,
+        page: Int
     ) async throws -> Operations.GetFiltered.Output {
         getCallCount += 1
         lastGetMedicationId = medicationId
@@ -73,7 +74,10 @@ private extension IntakeLogRepositoryTests {
     static func makeOkListOutput(dtos: [Components.Schemas.IntakeLogResponse]) throws -> Operations.GetFiltered.Output {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
-        let data = try encoder.encode(dtos)
+        let contentData = try encoder.encode(dtos)
+        let contentJSON = String(data: contentData, encoding: .utf8) ?? "[]"
+        let pageJSON = #"{"content":\#(contentJSON),"last":true,"first":true,"totalPages":1,"totalElements":\#(dtos.count)}"#
+        let data = Data(pageJSON.utf8)
         return .ok(.init(body: .any(HTTPBody(data, length: .known(Int64(data.count)), iterationBehavior: .multiple))))
     }
 }
@@ -149,7 +153,8 @@ struct IntakeLogRepositoryTests {
             medicationId: 7,
             from: from,
             to: nil,
-            status: .taken
+            status: .taken,
+            page: 0
         )
 
         #expect(client.getCallCount == 1)
@@ -167,10 +172,10 @@ struct IntakeLogRepositoryTests {
 
         let repo = LiveIntakeLogRepository(apiClient: client, cache: cache)
 
-        _ = try await repo.fetchLogs(medicationId: nil, from: from, to: nil, status: nil)
+        _ = try await repo.fetchLogs(medicationId: nil, from: from, to: nil, status: nil, page: 0)
         #expect(client.getCallCount == 1)
 
-        _ = try await repo.fetchLogs(medicationId: nil, from: from, to: nil, status: nil)
+        _ = try await repo.fetchLogs(medicationId: nil, from: from, to: nil, status: nil, page: 0)
         #expect(client.getCallCount == 1)
     }
 }
