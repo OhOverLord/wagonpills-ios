@@ -10,10 +10,10 @@ struct TodayView: View {
     }
 
     var body: some View {
+        @Bindable var vm = vm
         NavigationStack {
             content
                 .navigationTitle("Today")
-                .task { await vm.load() }
                 .refreshable { await vm.load() }
                 .sheet(item: $pendingAction) { action in
                     NoteSheet(
@@ -38,13 +38,17 @@ struct TodayView: View {
                         pendingAction = nil
                     }
                 }
-                .alert(
-                    "Error",
-                    isPresented: Binding(get: { vm.actionError != nil }, set: { if !$0 { vm.actionError = nil } }),
-                    actions: { Button("OK") { vm.actionError = nil } },
-                    message: { Text(vm.actionError?.localizedDescription ?? "") }
-                )
         }
+        .task { await vm.load() }
+        .alert(
+            "Error",
+            isPresented: Binding(
+                get: { vm.actionError != nil },
+                set: { if !$0 { vm.actionError = nil } }
+            ),
+            actions: { Button("OK") { vm.actionError = nil } },
+            message: { Text(vm.actionError?.localizedDescription ?? "") }
+        )
     }
 
     @ViewBuilder

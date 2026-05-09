@@ -47,8 +47,9 @@ final class TodayViewModel {
                 medicationId: nil,
                 from: startOfDay,
                 to: endOfDay,
-                status: nil
-            )
+                status: nil,
+                page: 0
+            ).logs
             let merged = merge(doses: allDoses, logs: logs)
             state = merged.isEmpty ? .empty : .loaded(merged)
         } catch let error as APIError {

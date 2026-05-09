@@ -115,6 +115,31 @@ struct IntakeHistoryView: View {
                 }
             }
         }
+        if vm.hasMore || vm.isLoadingMore {
+            Section {
+                loadMoreRow
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var loadMoreRow: some View {
+        if vm.isLoadingMore {
+            HStack {
+                Spacer()
+                ProgressView()
+                Spacer()
+            }
+            .listRowBackground(Color.clear)
+        } else {
+            Button("Load More") {
+                Task { await vm.loadMore() }
+            }
+            .frame(maxWidth: .infinity)
+            .onAppear {
+                Task { await vm.loadMore() }
+            }
+        }
     }
 
     // MARK: - Empty / error

@@ -27,6 +27,11 @@ struct TodayDose: Identifiable, Equatable {
     var log: IntakeLog?
 }
 
+struct IntakeLogPage: Sendable {
+    let logs: [IntakeLog]
+    let hasMore: Bool
+}
+
 // MARK: - DTO mapping
 
 extension IntakeLog {

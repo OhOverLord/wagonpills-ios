@@ -207,7 +207,7 @@ struct MedicationDetailView: View {
                         .foregroundStyle(changeTypeColor(latest.changeType))
                         .clipShape(Capsule())
                     Spacer()
-                    Text(latest.changedAt, style: .relative)
+                    Text(latest.changedAt.formatted(date: .abbreviated, time: .shortened))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
